@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #00b14f;
+  --color-secondary: #64748b;
+
+  --radius-card: 24px;
+
+  --font-display: "Poppins", sans-serif;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Poppins";
+  src: url("./assets/fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+* {
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  font-family: "Poppins", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-size: 14px !important;
+}
+
+input,
+textarea,
+::placeholder {
+  font-size: 14px !important;
+}
+.create-form .ant-picker-input {
+  height: 30px !important;
+}
+
+.betting-odds-table .ant-table-thead > tr > th {
+  background: #00b14f !important;
+  color: white !important;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ant-form-item-explain-error {
+  font-size: 12px;
+}
+
+.ant-table-thead > tr:first-child > th {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.betting-odds-table .ant-table-tbody > tr > td {
+  text-align: center;
+  padding: 12px 8px;
+  border-right: 1px solid #f0f0f0;
+  font-size: 12px;
+}
+
+.betting-odds-table .ant-table-tbody > tr:hover > td {
+  background: #f5f5f5;
+}
+
+.betting-odds-table .ant-table-summary > tr > td {
+  padding: 12px 8px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.betting-odds-table .ant-table-cell-fix-left,
+.betting-odds-table .ant-table-cell-fix-right {
+  background: white;
+}
+
+.betting-odds-table .ant-table-thead .ant-table-cell-fix-left,
+.betting-odds-table .ant-table-thead .ant-table-cell-fix-right {
+  background: #0a1929 !important;
+}
+
+.betting-odds-table .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #4f7cff;
+  border-color: #4f7cff;
+}
+
+.betting-odds-table .ant-checkbox-wrapper:hover .ant-checkbox-inner {
+  border-color: #4f7cff;
+}
+.ant-select-content,
+.ant-select-item-option-content {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+
+.ant-select-focused .ant-select-selector,
+.ant-picker-focused {
+  border-color: #4f7cff !important;
+  font-size: 12px !important;
+
+  box-shadow: 0 0 0 2px rgba(79, 124, 255, 0.1) !important;
+}
+
+@keyframes laserMove {
+  0%, 100% { top: 0%; opacity: 0.4; }
+  50% { top: 100%; opacity: 1; }
+}
+
+
+
+.segmented-small .ant-segmented-item-label {
+  font-size: 14px !important;
+  font-weight: 500;
+}
+@media (max-width: 640px) {
+  .segmented-small .ant-segmented-item-label {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .betting-odds-table .ant-table-thead > tr > th {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  .betting-odds-table .ant-table-tbody > tr > td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+}
