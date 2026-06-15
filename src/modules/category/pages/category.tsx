@@ -1,9 +1,10 @@
 import DataTable from "../components/table";
 import Header from "../components/header";
 import Breadcrumb from "../components/breadcrumb";
-import { Space } from "antd";
+import { Input, Space } from "antd";
 import { useDrawCategoryController } from "../hooks/useCustomerController";
 import CreateEditModel from "../components/model/create-edit";
+import { Search } from "lucide-react";
  
 function Category() {
   const {
@@ -33,15 +34,15 @@ function Category() {
       <Header />
 
       <div className="flex justify-end items-center gap-4">
-        {/* <div>
+        <div>
           <Input
             size="large"
             className=" text-xs"
             placeholder="Search....."
-            onChange={(e) => setSearch(e.target.value)}
+            // onChange={(e) => setSearch(e.target.value)}
             prefix={<Search className=" size-5" />}
           />
-        </div> */}
+        </div>
         <div className=" flex items-center gap-3">
           {/* <DatePicker
             size="large"

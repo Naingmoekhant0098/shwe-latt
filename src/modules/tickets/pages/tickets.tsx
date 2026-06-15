@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import { useCustomerController } from "../../agent/hooks/useCustomerController";
 import { useEffect } from "react";
-import Scanner from "../components/scanner";
+
 
 function Tickets() {
   const {
@@ -45,7 +45,7 @@ function Tickets() {
       <Header />
 
       <div className="flex flex-col gap-3  mb-4  w-full md:flex-row md:items-center md:justify-between">
-        {/* <div className="w-full md:w-72">
+        <div className="w-full md:w-72">
           <Input
             size="large"
             className="text-sm"
@@ -53,7 +53,7 @@ function Tickets() {
             onChange={(e) => setSearch(e.target.value)}
             prefix={<Search className="size-5 text-gray-400" />}
           />
-        </div> */}
+        </div>
 
         {/* 2. Controls Group - Uses flex-col-reverse on mobile */}
         <div className="flex  gap-4 sm:flex-row sm:items-center sm:justify-between md:justify-end md:flex-1 md:gap-4">

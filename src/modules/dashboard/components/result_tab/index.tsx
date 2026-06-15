@@ -1,44 +1,18 @@
-import { Button, Select, Spin } from "antd";
+import { Button, Empty, Select, Spin } from "antd";
 import ResultCard from "../result_card";
 import { EyeOutlined } from "@ant-design/icons";
 import { useDrawCategoryController } from "../../../category/hooks/useCustomerController";
 import { useResultController } from "../../hooks/useTicketController";
-import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useState } from "react";
 
 function ResultTab() {
- 
-  const { results, handleSearch, isLoading } = useResultController();
+  const [cate, setCate] = useState();
+  const { results, handleSearch, isLoading, error } = useResultController();
   const { drawCategories: draws } = useDrawCategoryController();
-
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const cate = searchParams.get("cate") || undefined;
-
-  const setCate = (value) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("cate", value);
-      return params;
-    });
-  };
-
-  // const latestDraw = draws?.drawCategories?.reduce((latest, current) => {
-  //   if (!latest) return current;
-  //   return new Date(current.date) > new Date(latest.date) ? current : latest;
-  // }, null);
-
-  // const latestDrawId = latestDraw ? latestDraw.id || latestDraw._id : undefined;
-
-  // useEffect(() => {
-  //   if (latestDrawId && !selectedCategory) {
-  //     setSelectedCategory(latestDrawId);
-  //   }
-  // }, [latestDrawId]);
+  console.log(error)
 
   return (
     <div className="space-y-4">
-     
       <div className="mb-4">
         <h2 className="text-lg mb-1! font-semibold text-slate-800">
           ထီရလဒ်များ
@@ -47,7 +21,6 @@ function ResultTab() {
           ဆုအမျိုးအစားအလိုက် ခွဲခြားထားသော နောက်ဆုံးထီရလဒ်များ
         </p>
       </div>
-
       <div className=" flex justify-between gap-3 mb-3">
         <Select
           className="w-full"
@@ -70,6 +43,7 @@ function ResultTab() {
         </Select>
 
         <Button
+          disabled={!cate}
           onClick={() => handleSearch(cate)}
           type="primary"
           icon={<EyeOutlined />}
@@ -78,18 +52,28 @@ function ResultTab() {
         </Button>
       </div>
 
-
-
       {isLoading ? (
-        <div className="flex justify-center py-10">
+        <div className="text-center flex flex-col items-center gap-3 py-20">
           <Spin size="large" />
+          <div>ရှာဖွေနေပါသည်</div>
+        </div>
+      ) : error ? (
+        <div className=" mt-4 py-20">
+          <Empty></Empty>
+          <div className="text-center text-red-500 ">
+          {error?.response?.data?.message ||
+      error?.message ||
+      "တစ်ခုခုမှားယွင်းနေပါသည်"}
+        </div>
         </div>
       ) : results?.results?.length ? (
-        results.results.map((item, index) => (
-          <ResultCard key={index} item={item} />
-        ))
+        <div className="space-y-3">
+          {results.results.map((item: any) => (
+            <ResultCard key={item.id || item._id} item={item} />
+          ))}
+        </div>
       ) : (
-        <div className="text-center text-gray-400 py-10">ရလဒ်မရှိပါ</div>
+        <div className="text-center text-gray-400 py-20">ရလဒ်မရှိပါ</div>
       )}
     </div>
   );

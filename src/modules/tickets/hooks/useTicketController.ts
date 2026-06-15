@@ -3,7 +3,7 @@ import {
   useCreateUser,
   useDeleteUser,
   useGetUserDetail,
-  useGetUsers,
+   
   useUpdateUser,
 } from "./useQuaries";
 import { showDeleteDoctorConfirm } from "../components/delete_confirm";
@@ -20,14 +20,7 @@ export const useTicketController = () => {
   const [date, setDate] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  
-  // const params = {
-  //   limit: perPage,
-  //   page: currentPage,
-  //   search: search,
-  //   date
-  // };
-  
+
   const { data: tickets, isLoading } = useGetUserDetail(selectedCategory);
   const { mutateAsync, isPending: createLoading } = useCreateUser();
   const totalItems = tickets?.pagination?.total || 0;
@@ -42,9 +35,9 @@ export const useTicketController = () => {
     showDeleteDoctorConfirm(record, async () => {
       try {
         await deleteUser(record.id);
-        message.success("လက်မှတ်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။");  
+        message.success("လက်မှတ်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။");
       } catch {
-        message.error("လက်မှတ်ဖျက်ရန် အဆင်မပြေပါသဖြင့် ပြန်လည်ကြိုးစားပါ။"); 
+        message.error("လက်မှတ်ဖျက်ရန် အဆင်မပြေပါသဖြင့် ပြန်လည်ကြိုးစားပါ။");
       }
     });
   };
@@ -56,11 +49,15 @@ export const useTicketController = () => {
   const handleEdit = async (id: number, data: TicketRequest) => {
     try {
       await updateUser({ id, data });
-      return { success: true, message: "လက်မှတ်အချက်အလက်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။" }; // Ticket updated successfully
+      return {
+        success: true,
+        message: "လက်မှတ်အချက်အလက်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။",
+      }; // Ticket updated successfully
     } catch (error: any) {
       return {
         success: false,
-        message: error?.response?.data?.message || "လက်မှတ်ပြင်ဆင်ရန် အဆင်မပြေပါ။", // Failed to update Ticket
+        message:
+          error?.response?.data?.message || "လက်မှတ်ပြင်ဆင်ရန် အဆင်မပြေပါ။", // Failed to update Ticket
       };
     }
   };
@@ -68,11 +65,15 @@ export const useTicketController = () => {
   const handleCreate = async (data: any) => {
     try {
       await mutateAsync(data);
-      return { success: true, message: "လက်မှတ်ကို အောင်မြင်စွာ ပြုလုပ်ပြီးပါပြီ။" };  
+      return {
+        success: true,
+        message: "လက်မှတ်ကို အောင်မြင်စွာ ပြုလုပ်ပြီးပါပြီ။",
+      };
     } catch (error: any) {
       return {
         success: false,
-        message: error?.response?.data?.message || "လက်မှတ်ပြုလုပ်ရန် အဆင်မပြေပါ။",  
+        message:
+          error?.response?.data?.message || "လက်မှတ်ပြုလုပ်ရန် အဆင်မပြေပါ။",
       };
     }
   };
@@ -95,6 +96,6 @@ export const useTicketController = () => {
     setSearch,
     setDate,
     selectedCategory,
-    setSelectedCategory
+    setSelectedCategory,
   };
 };

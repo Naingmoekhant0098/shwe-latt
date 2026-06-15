@@ -6,7 +6,7 @@ export const useResultController = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedWinnerCategory, setSelectedWinnerCategory] = useState("");
 
-  const { data: results, isLoading: isLoading } =
+  const { data: results, isLoading: isLoading , error  } =
     useGetResultDetail(selectedCategory);
 
   const { data: checkResults, isLoading: checkLoading } = useGetWinnerDetail(
@@ -28,6 +28,7 @@ export const useResultController = () => {
     selectedCategory,
     checkResults,
     checkLoading,
+    error,
     setSelectedCategory,
     setSelectedWinnerCategory
   };
