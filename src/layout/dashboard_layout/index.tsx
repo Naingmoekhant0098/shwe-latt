@@ -55,9 +55,14 @@ const DashboardLayout = () => {
       icon: <DashboardOutlined />,
     },
     {
-      label: "အနိုင်ရသူ စစ်ဆေးရန်",
+      label: "အနိုင်ရသူ စစ်ရန်",
       key: "check_winner",
-      icon: <FileSearchOutlined/>,
+      icon: <FileSearchOutlined />,
+    },
+    {
+      label: "အနိုင်ရသူ ကြည့်ရန်",
+      key: "see_winner",
+      icon: <FileSearchOutlined />,
     },
     {
       label: "အမျိုးအစား",
@@ -132,7 +137,6 @@ const DashboardLayout = () => {
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-     
       {!isMobile && (
         <Sider
           width={240}
@@ -150,7 +154,6 @@ const DashboardLayout = () => {
         </Sider>
       )}
 
-       
       {isMobile && (
         <Drawer
           placement="left"
@@ -191,14 +194,12 @@ const DashboardLayout = () => {
           <Space size={12}>
             {isMobile && (
               <Button
-              variant="outlined"
+                variant="outlined"
                 // type="text"
                 icon={<MenuOutlined />}
                 onClick={() => setDrawerOpen(true)}
               />
             )}
-            
-           
           </Space>
 
           <Space size={12}>

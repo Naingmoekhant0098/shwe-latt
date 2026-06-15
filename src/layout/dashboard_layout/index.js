@@ -28,8 +28,13 @@ const DashboardLayout = () => {
             icon: _jsx(DashboardOutlined, {}),
         },
         {
-            label: "အနိုင်ရသူ စစ်ဆေးရန်",
+            label: "အနိုင်ရသူ စစ်ဆေးရန် ",
             key: "check_winner",
+            icon: _jsx(FileSearchOutlined, {}),
+        },
+        {
+            label: "အနိုင်ရသူ ကြည့်ရန် ",
+            key: "see_winner",
             icon: _jsx(FileSearchOutlined, {}),
         },
         {

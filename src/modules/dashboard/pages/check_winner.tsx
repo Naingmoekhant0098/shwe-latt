@@ -1,26 +1,32 @@
-import { useEffect, useState } from "react";
-
-import { useResultController } from "../hooks/useTicketController";
-import TicketCard from "../components/card";
-import { useSearchParams } from "react-router-dom";
-import { Spin } from "antd";
+import { data, useSearchParams } from "react-router-dom";
+import { Empty, Spin } from "antd";
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
+
+import TicketCard from "../components/card";
+import { useGetWinners } from "../hooks/useQuaries";
+
 function CheckWinner() {
   const { drawCategories: draws } = useDrawCategoryController();
-  const { checkResults, checkLoading, setSelectedWinnerCategory } =
-    useResultController();
+
   const [searchParams, setSearchParams] = useSearchParams();
-  const cate = searchParams.get("cate") || undefined;
-  const setCate = (value) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("cate", value);
-      return params;
-    });
+
+  const cate = searchParams.get("drawId") || "";
+
+  const {
+    data: showWinnerResults,
+    isLoading: showWinnerLoading,
+    error,
+  } = useGetWinners(cate);
+
+  const setCate = (value: string) => {
+    setSearchParams({ drawId: value });
   };
-  useEffect(() => {
-    setSelectedWinnerCategory(cate);
-  }, [cate]);
+
+  const isEmpty =
+    !showWinnerResults?.tickets || showWinnerResults?.tickets.length === 0;
+
+  const emptyMessage = showWinnerResults?.message || "အနိုင်ရရှိသူမရှိပါ";
+
   return (
     <div className="space-y-4">
       <div className="mb-3">
@@ -29,9 +35,9 @@ function CheckWinner() {
         </h2>
 
         <div className="text-sm text-slate-500">
-          {checkResults?.tickets?.length > 0
+          {showWinnerResults?.tickets?.length > 0
             ? `${new Date(
-                checkResults.tickets[0].DrawCategory.date
+                showWinnerResults.tickets[0].DrawCategory.date
               ).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
@@ -41,28 +47,23 @@ function CheckWinner() {
         </div>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-6!">
-        {draws?.drawCategories?.map((cat) => {
-          const value = cat.id || cat._id;
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-6">
+        {draws?.drawCategories?.map((cat: any) => {
+          const value = String(cat.id || cat._id);
           const active = cate === value;
+
           return (
             <div
               key={value}
               onClick={() => setCate(value)}
               className={`
-          shrink-0
-          cursor-pointer
-          rounded-xl
-          border
-          px-4
-          py-3
-          transition-all
-          ${
-            active
-              ? "border-primary bg-primary/15"
-              : "border-slate-300 bg-white"
-          }
-        `}
+                shrink-0 cursor-pointer rounded-xl border px-4 py-3 transition-all
+                ${
+                  active
+                    ? "border-primary bg-primary/15"
+                    : "border-slate-300 bg-white"
+                }
+              `}
             >
               <div
                 className={`text-sm font-medium ${
@@ -80,22 +81,27 @@ function CheckWinner() {
         })}
       </div>
 
-      {checkLoading ? (
+      {showWinnerLoading ? (
         <div className="flex justify-center items-center py-30">
-          <div className=" text-center flex flex-col items-center gap-3">
-            <Spin size="large" />
-            <div>ရှာဖွေနေပါသည်</div>
-          </div>
+          <Spin size="large" />
         </div>
-      ) : checkResults?.tickets?.length ? (
-        <div className=" grid grid-cols-1 md:grid-cols-3 gap-3">
-          {checkResults.tickets.map((item, index) => (
-            <TicketCard key={index} item={item} />
-          ))}
+      ) : error ? (
+        <div className="mt-4 py-20 text-center text-red-500">
+          {error?.response?.data?.message ||
+            error?.message ||
+            "တစ်ခုခုမှားယွင်းနေပါသည်"}
+        </div>
+      ) : isEmpty ? (
+        <div className="mt-4 py-20 text-center">
+          <Empty />
+
+          <div className="text-gray-500 mt-2">{emptyMessage}</div>
         </div>
       ) : (
-        <div className="text-center text-gray-400 py-10">
-          အနိုင်ရရှိသူမရှိပါ
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {showWinnerResults.tickets.map((item: any, index: number) => (
+            <TicketCard key={item.id || index} item={item} />
+          ))}
         </div>
       )}
     </div>

@@ -9,7 +9,7 @@ function ResultTab() {
     const [cate, setCate] = useState();
     const { results, handleSearch, isLoading, error } = useResultController();
     const { drawCategories: draws } = useDrawCategoryController();
-    console.log(error);
+    
     return (_jsxs("div", { className: "space-y-4", children: [_jsxs("div", { className: "mb-4", children: [_jsx("h2", { className: "text-lg mb-1! font-semibold text-slate-800", children: "\u1011\u102E\u101B\u101C\u1012\u103A\u1019\u103B\u102C\u1038" }), _jsx("p", { className: "text-sm text-slate-400", children: "\u1006\u102F\u1021\u1019\u103B\u102D\u102F\u1038\u1021\u1005\u102C\u1038\u1021\u101C\u102D\u102F\u1000\u103A \u1001\u103D\u1032\u1001\u103C\u102C\u1038\u1011\u102C\u1038\u101E\u1031\u102C \u1014\u1031\u102C\u1000\u103A\u1006\u102F\u1036\u1038\u1011\u102E\u101B\u101C\u1012\u103A\u1019\u103B\u102C\u1038" })] }), _jsxs("div", { className: " flex justify-between gap-3 mb-3", children: [_jsx(Select, { className: "w-full", placeholder: "\u1021\u1019\u103B\u102D\u102F\u1038\u1021\u1005\u102C\u1038\u101B\u103D\u1031\u1038\u1001\u103B\u101A\u103A\u101B\u1014\u103A", showSearch: false, optionFilterProp: "children", value: cate, onChange: (value) => setCate(value), children: draws?.drawCategories &&
                             draws.drawCategories.map((cat) => (_jsx(Select.Option, { value: cat.id || cat._id, children: new Date(cat.date).toLocaleDateString("en-US", {
                                     month: "short",

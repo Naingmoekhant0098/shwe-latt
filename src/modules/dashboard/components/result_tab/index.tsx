@@ -9,7 +9,6 @@ function ResultTab() {
   const [cate, setCate] = useState();
   const { results, handleSearch, isLoading, error } = useResultController();
   const { drawCategories: draws } = useDrawCategoryController();
-  console.log(error)
 
   return (
     <div className="space-y-4">
@@ -21,25 +20,25 @@ function ResultTab() {
           ဆုအမျိုးအစားအလိုက် ခွဲခြားထားသော နောက်ဆုံးထီရလဒ်များ
         </p>
       </div>
-      <div className=" flex justify-between gap-3 mb-3">
+      <div className="">
+        <div className="flex justify-end gap-3 mb-3 items-center">
         <Select
-          className="w-full"
+          style={{ width: 208 }}
           placeholder="အမျိုးအစားရွေးချယ်ရန်"
           showSearch={false}
           optionFilterProp="children"
           value={cate}
           onChange={(value) => setCate(value)}
         >
-          {draws?.drawCategories &&
-            draws.drawCategories.map((cat) => (
-              <Select.Option key={cat.id || cat._id} value={cat.id || cat._id}>
-                {new Date(cat.date).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </Select.Option>
-            ))}
+          {draws?.drawCategories?.map((cat) => (
+            <Select.Option key={cat.id || cat._id} value={cat.id || cat._id}>
+              {new Date(cat.date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </Select.Option>
+          ))}
         </Select>
 
         <Button
@@ -48,8 +47,9 @@ function ResultTab() {
           type="primary"
           icon={<EyeOutlined />}
         >
-          <span>ရလဒ်ကြည့်ရန်</span>
+          ရလဒ်ကြည့်ရန်
         </Button>
+      </div>
       </div>
 
       {isLoading ? (
@@ -61,10 +61,10 @@ function ResultTab() {
         <div className=" mt-4 py-20">
           <Empty></Empty>
           <div className="text-center text-red-500 ">
-          {error?.response?.data?.message ||
-      error?.message ||
-      "တစ်ခုခုမှားယွင်းနေပါသည်"}
-        </div>
+            {error?.response?.data?.message ||
+              error?.message ||
+              "တစ်ခုခုမှားယွင်းနေပါသည်"}
+          </div>
         </div>
       ) : results?.results?.length ? (
         <div className="space-y-3">

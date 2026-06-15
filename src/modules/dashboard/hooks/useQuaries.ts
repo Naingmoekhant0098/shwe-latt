@@ -25,14 +25,30 @@ export const useGetResultDetail = (id: string) => {
   });
 };
 
-export const useGetWinnerDetail = (id: string) => {
+export const useGetCheckWinner = (id: string) => {
   return useQuery<any, Error>({
-    queryKey: ["winner-results", id],
+    queryKey: ["check-winner", id],
     queryFn: async () => {
       const res = await result_service.checkingTicket<any>(id);
+      return res;
+    },
+    enabled: !!id,
+  });
+};
+
+export const useGetWinners = (id?: string) => {
+  console.log("hook id:", id);
+
+  return useQuery<any, Error>({
+    queryKey: ["see-winner-result", id],
+    queryFn: async () => {
+      console.log("queryFn running with id:", id);
+
+      const res = await result_service.showWinnerTickets<any>(id);
+      console.log("API response:", res);
 
       return res?.data || res;
     },
-    enabled: !!id,
+    enabled: !!id, // 🔥 THIS IS CRITICAL
   });
 };
