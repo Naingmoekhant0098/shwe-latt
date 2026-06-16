@@ -65,7 +65,7 @@ const DashboardLayout = () => {
       icon: <FileSearchOutlined />,
     },
     {
-      label: "အမျိုးအစား",
+      label: "ထီထွက်ရက်များ",
       key: "category",
       icon: <CalendarOutlined />,
     },

@@ -23,8 +23,9 @@ function ResultTab() {
       <div className="">
         <div className="flex justify-end gap-3 mb-3 items-center">
         <Select
-          style={{ width: 208 }}
-          placeholder="အမျိုးအစားရွေးချယ်ရန်"
+      className="w-full md:w-52 "
+
+          placeholder="ထီထွက်ရက်ရွေးချယ်ရန်"
           showSearch={false}
           optionFilterProp="children"
           value={cate}

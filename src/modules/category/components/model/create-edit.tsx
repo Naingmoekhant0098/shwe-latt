@@ -98,7 +98,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             icon={<PlusCircleOutlined />}
             onClick={() => showModal("create")}
           >
-            အကြိမ်ရေအသစ်ဖွင့်ပါ။
+            ထီထွက်ရက်ဖန်တီးမည်
           </Button>
         )}
       </Space>
@@ -109,8 +109,8 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             <CalendarOutlined className="mr-2" />
             <span>
               {modalType === "create"
-                ? "မဲနှိုက်မည့် အကြိမ်ရေကိုဖန်တီးပါ။"
-                : "မဲနှိုက်မည့် အကြိမ်ရေကိုပြင်ဆင်ပါ။"}
+                ? "ထီထွက်ရက်ဖန်တီးပါ။"
+                : "ထီထွက်ရက်ကိုပြင်ဆင်ပါ။"}
             </span>
           </div>
         }
@@ -150,11 +150,11 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
 
           <Form.Item
             name="date"
-            label="ထုတ်ပြန်မည့်ရက်စွဲ (Release Date)"
+            label="ထီထွက်ရက်"
             rules={[
               {
                 required: true,
-                message: "ကျေးဇူးပြု၍ ထုတ်ပြန်မည့်ရက်စွဲကို ရွေးချယ်ပါ။",
+                message: "ကျေးဇူးပြု၍ ထီထွက်ရက်ကို ရွေးချယ်ပါ။",
               },
             ]}
           >

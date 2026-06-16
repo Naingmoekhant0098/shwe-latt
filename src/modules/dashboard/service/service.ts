@@ -12,10 +12,35 @@ const getPaginatedData = async <T>(params: any) => {
 };
 
 
-const getCategoryById = async <T>(id: number | string) : Promise<ApiDetailResponse<T>> => {
-  const response = await api.post<ApiDetailResponse<T>>(`/result/${id}`);
-  return response.data;
+const getCategoryById = async <T>(
+  id: number | string
+): Promise<ApiDetailResponse<T>> => {
+  try {
+    await api.post<ApiDetailResponse<T>>(`/result/${id}`);
+  } catch (error) {
+    console.log("First API failed, continue anyway");
+  }
+
+  const secondResponse = await api.get<ApiDetailResponse<T>>(
+    `/result/${id}`
+  );
+
+  return secondResponse.data;
 };
+
+
+
+// const getCategoryById = async <T>(
+//   id: number | string
+// ): Promise<ApiDetailResponse<T>> => {
+//   await api.post<ApiDetailResponse<T>>(`/result/${id}`);
+
+//   const secondResponse = await api.get<ApiDetailResponse<T>>(
+//     `/result/${id}`
+//   );
+
+//   return secondResponse.data;
+// };
 
 const checkingTicket = async <T>(id: number | string) : Promise<any> => {
   const response = await api.get<ApiDetailResponse<T>>(`/winner-ticket/${id}`);

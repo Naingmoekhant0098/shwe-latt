@@ -16,8 +16,6 @@ export const useResultController = () => {
     data: results,
     isLoading,
     error,
-
-
   } = useGetResultDetail(selectedCategory);
 
  

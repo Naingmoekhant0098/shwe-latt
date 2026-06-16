@@ -34,7 +34,7 @@ function Category() {
       <Header />
 
       <div className="flex justify-end items-center gap-4">
-        <div>
+        {/* <div>
           <Input
             size="large"
             className=" text-xs"
@@ -42,7 +42,7 @@ function Category() {
             // onChange={(e) => setSearch(e.target.value)}
             prefix={<Search className=" size-5" />}
           />
-        </div>
+        </div> */}
         <div className=" flex items-center gap-3">
           {/* <DatePicker
             size="large"
