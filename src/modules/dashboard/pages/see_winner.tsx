@@ -1,62 +1,63 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   EyeOutlined,
   CheckCircleFilled,
   LoadingOutlined,
   CloseCircleFilled,
+  InfoCircleFilled,
 } from "@ant-design/icons";
 import { Button, Select } from "antd";
-import { useSearchParams } from "react-router-dom";
 
-import { useResultController } from "../hooks/useTicketController";
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
-import TicketCard from "../components/card";
+import { useCheckWinners } from "../hooks/useQuaries";
 
-function SeeWinner() {
+function CheckWinner() {
   const { drawCategories: draws } = useDrawCategoryController();
 
+  const [cate, setCate] = useState<string>();
+  const [tempCate, setTempCate] = useState<string>();
+
   const {
-    checkResults,
-    checkLoading,
-    setSelectedWinnerCategory,
-    checkingError,
-  } = useResultController();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [cate, setCate] = useState<string | undefined>();
-  useEffect(() => {
-    const urlCate = searchParams.get("cate") || undefined;
-    setCate(urlCate);
-  }, [searchParams]);
+    data: showWinnerResults,
+    isLoading: showWinnerLoading,
+    error,
+  } = useCheckWinners(cate);
 
+  const winnerTickets =
+    showWinnerResults?.data?.tickets || showWinnerResults?.tickets || [];
 
-  console.log(checkResults)
+  const hasChecked = !!cate;
 
   const handleCheck = () => {
-    if (!cate) return;
-    setSearchParams({ cate });
-    setSelectedWinnerCategory(cate);
+    if (tempCate) {
+      setCate(tempCate);
+    }
   };
 
-  const hasChecked = !!checkResults || !!checkingError;
-
   return (
-    <div className="max-w-4xl mx-auto px-0 py-6 pt-0 space-y-6">
-      <div className="bg-white rounded-2xl p-6">
+    <div className="max-w-4xl mx-auto px-0 py-6 pt-0">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">Winner Check</h2>
-          <p className="text-sm text-slate-500">Select draw and check result</p>
+          <h2 className="text-2xl font-bold text-slate-800">
+            အနိုင်ရသူ စစ်ဆေးရန်
+          </h2>
+
+          <p className="text-sm text-slate-500 mt-1">
+            ထီဖွင့်ရက်ရွေးချယ်ပြီး အနိုင်ရ/မရ စစ်ဆေးပါ
+          </p>
         </div>
 
-        {/* SELECT */}
         <div className="mb-5">
-          <label className="text-xs text-slate-500">Draw Category</label>
+          <label className="block text-xs text-slate-500 mb-2">
+            ထီဖွင့်ရက်
+          </label>
 
           <Select
-            className="w-full mt-1"
+            className="w-full"
             size="large"
-            placeholder="Select draw"
-            value={cate}
-            onChange={(val) => setCate(val)}
+            placeholder="ထီဖွင့်ရက် ရွေးချယ်ပါ"
+            value={tempCate}
+            onChange={(value) => setTempCate(value)}
             options={(draws?.drawCategories || []).map((cat: any) => ({
               value: String(cat.id ?? cat._id),
               label: cat.date
@@ -65,100 +66,85 @@ function SeeWinner() {
                     day: "numeric",
                     year: "numeric",
                   })
-                : "Unknown date",
+                : "Unknown Date",
             }))}
           />
         </div>
 
-        {/* BUTTON */}
         <Button
           type="primary"
           icon={<EyeOutlined />}
           className="w-full h-11 rounded-xl"
-          disabled={!cate || checkLoading}
+          disabled={!tempCate || showWinnerLoading}
           onClick={handleCheck}
         >
-          Check Winner
+          စစ်ဆေးရန်
         </Button>
 
-        {/* STATUS AREA */}
-        <div className="mt-8 flex flex-col items-center justify-center">
-          {/* LOADING */}
-          {checkLoading && (
-            <div className="text-center py-6">
+        <div className="mt-8">
+          {showWinnerLoading && (
+            <div className="text-center py-8">
               <LoadingOutlined style={{ fontSize: 40 }} spin />
-              <p className="mt-3 text-slate-500">Checking results...</p>
+              <p className="mt-3 text-slate-500">စစ်ဆေးနေပါသည်...</p>
             </div>
           )}
 
-          {/* SUCCESS */}
-          {!checkLoading && checkResults?.status === 200 && (
-            <div className="w-full text-center bg-blue-50 border border-blue-200 rounded-xl p-5">
-              <CheckCircleFilled style={{ fontSize: 48, color: "#3b82f6" }} />
+          {!showWinnerLoading && hasChecked && !error && (
+            <>
+              {winnerTickets.length > 0 ? (
+                <div className="text-center bg-green-50 border border-green-200 rounded-xl p-6">
+                  <CheckCircleFilled
+                    style={{
+                      fontSize: 56,
+                      color: "#22c55e",
+                    }}
+                  />
 
-              <h3 className="mt-2 text-blue-700 font-semibold">
-                Check Completed
+                  <h3 className="mt-4! text-lg font-semibold text-green-700">
+                    {showWinnerResults?.message}
+                  </h3>
+                </div>
+              ) : (
+                <div className="text-center bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+                  <InfoCircleFilled
+                    className=" text-yellow-600!"
+                    style={{
+                      fontSize: 36,
+                    }}
+                  />
+
+                  <h3 className="mt-4! text-lg font-semibold text-yellow-600">
+                    {showWinnerResults?.message}
+                  </h3>
+                </div>
+              )}
+            </>
+          )}
+
+          {!showWinnerLoading && error && (
+            <div className="text-center bg-red-50 border border-red-200 rounded-xl p-6">
+              <CloseCircleFilled
+                style={{
+                  fontSize: 56,
+                  color: "#ef4444",
+                }}
+              />
+
+              <h3 className="mt-4 text-xl font-semibold text-red-600">
+                အနိုင်မရရှိပါ
               </h3>
-
-              <p className="text-sm text-blue-600">
-                Results loaded successfully
-              </p>
             </div>
           )}
 
-          
-          {!checkLoading && hasChecked && checkResults?.status !== 200 && (
-            <div className="w-full text-center bg-red-50 border border-red-200 rounded-xl p-5">
-              <CloseCircleFilled style={{ fontSize: 48, color: "#ef4444" }} />
-
-              <h3 className="mt-2 text-red-600 font-semibold">
-                No Results Found
-              </h3>
-
-              <p className="text-sm text-red-500">
-                {checkingError?.response?.data?.message ||
-                  checkingError?.message ||
-                  "Something went wrong"}
-              </p>
-            </div>
-          )}
-
-          {/* EMPTY */}
-          {!checkLoading && !hasChecked && (
-            <div className="text-center text-slate-400 py-6">
-              Select a draw and check to see winners
+          {!showWinnerLoading && !hasChecked && (
+            <div className="text-center text-slate-400 py-8">
+              ထီဖွင့်ရက်ရွေးချယ်ပြီး စစ်ဆေးပါ
             </div>
           )}
         </div>
       </div>
-
-      {/* WINNER LIST */}
-      {checkResults?.data?.winnerTickets?.length > 0 && (
-        <div className="px-1">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Winner Tickets
-            </h3>
-
-            <span className="text-sm text-slate-500">
-              {checkResults.data.winnerTickets.length} winners
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {checkResults.data.winnerTickets.map((item, index) => (
-              <div
-                key={index}
-                className="hover:scale-[1.02] transition-transform"
-              >
-                <TicketCard item={item} />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
-export default SeeWinner;
+export default CheckWinner;

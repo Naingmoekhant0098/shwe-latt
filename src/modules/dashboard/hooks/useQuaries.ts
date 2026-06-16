@@ -36,7 +36,7 @@ export const useGetCheckWinner = (id: string) => {
   });
 };
 
-export const useGetWinners = (id?: string) => {
+export const useCheckWinners = (id?: string) => {
   console.log("hook id:", id);
 
   return useQuery<any, Error>({
@@ -44,7 +44,7 @@ export const useGetWinners = (id?: string) => {
     queryFn: async () => {
       console.log("queryFn running with id:", id);
 
-      const res = await result_service.showWinnerTickets<any>(id);
+      const res = await result_service.checkWinnerTickets<any>(id);
       console.log("API response:", res);
 
       return res?.data || res;

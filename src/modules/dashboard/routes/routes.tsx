@@ -1,6 +1,6 @@
 import React from "react";
-import CheckWinner from "../pages/check_winner";
-import SeeWinner from "../pages/see_winner";
+import SeeWinner from "../pages/check_winner";
+import CheckWinner from "../pages/see_winner";
 const DashboardPage = React.lazy(() => import("../pages/dashboard"));
 const DetailPage = React.lazy(() => import("../pages/detail"));
 export const dashboardRoutes = [
@@ -16,11 +16,11 @@ export const dashboardRoutes = [
   },
   {
     path: "/see_winner",
-    element: <CheckWinner />,
+    element: <SeeWinner />,
   },
   {
     path: "/check_winner",
-    element: <SeeWinner />,
+    element: <CheckWinner />,
   },
   
 ];

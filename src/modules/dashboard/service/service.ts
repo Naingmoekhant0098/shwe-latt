@@ -25,7 +25,7 @@ const checkingTicket = async <T>(id: number | string) : Promise<any> => {
   };
 };
  
-const showWinnerTickets = async <T>(id: number | string) : Promise<ApiDetailResponse<T>> => {
+const checkWinnerTickets = async <T>(id: number | string) : Promise<ApiDetailResponse<T>> => {
   const response = await api.post<ApiDetailResponse<T>>(`/winner-ticket/${id}/check`);
   return response.data;
 };
@@ -37,5 +37,5 @@ export const result_service = {
   getPaginatedData,
   getCategoryById,
   checkingTicket,
-  showWinnerTickets
+  checkWinnerTickets
 };
