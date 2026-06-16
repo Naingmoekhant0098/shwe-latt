@@ -31,7 +31,7 @@ function CheckWinner() {
     <div className="space-y-4">
       <div className="mb-3">
         <h2 className="text-base sm:text-lg font-semibold text-slate-800">
-          အနိုင်ရသူ စစ်ဆေးရန်
+          အနိုင်ရသူ ကြည့်ရန်
         </h2>
 
         <div className="text-sm text-slate-500">
