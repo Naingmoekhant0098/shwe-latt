@@ -9,7 +9,6 @@ import { useDrawCategoryController } from "../../category/hooks/useCustomerContr
 import { useCustomerController } from "../../agent/hooks/useCustomerController";
 import { useEffect } from "react";
 
-
 function Tickets() {
   const {
     tickets,
@@ -42,55 +41,52 @@ function Tickets() {
   return (
     <Space direction="vertical" size={12} style={{ display: "flex" }}>
       <Breadcrumb />
-      <Header />
-
-      <div className="flex flex-col gap-3  mb-4  w-full md:flex-row md:items-center md:justify-between">
-        <div className="w-full md:w-72">
-          <Input
-            size="large"
-            className="text-sm"
-            placeholder="ရှာဖွေရန်..."
-            onChange={(e) => setSearch(e.target.value)}
-            prefix={<Search className="size-5 text-gray-400" />}
-          />
-        </div>
-
-        {/* 2. Controls Group - Uses flex-col-reverse on mobile */}
-        <div className="flex  gap-4 sm:flex-row sm:items-center sm:justify-between md:justify-end md:flex-1 md:gap-4">
-          <div className="w-full sm:w-auto">
-            <Select
-              className="w-full sm:w-48"
-              placeholder="အမျိုးအစားရွေးချယ်ရန်"
-              showSearch={false}
-              optionFilterProp="children"
-              value={selectedCategory || undefined}
-              onChange={(value) => setSelectedCategory(value)}
-            >
-              {draws?.drawCategories &&
-                draws.drawCategories.map((cat) => (
-                  <Select.Option
-                    key={cat.id || cat._id}
-                    value={cat.id || cat._id}
-                  >
-                    {new Date(cat.date).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </Select.Option>
-                ))}
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-end gap-2 w-full sm:w-auto">
-            <CreateEditModel
-              categories={draws?.drawCategories}
-              agents={customers?.agents}
-              type="create"
-            />
-          </div>
-        </div>
+       <div className=" flex md:items-center justify-between">
+       <div >
+        <div className="font-semibold text-lg md:text-xl">ထီမဲနံပါတ်များ</div>
+        <p className="text-sm text-gray-400 mt-1!">
+          ရက်စွဲအလိုက် ထီမဲရလဒ်များကို ကြည့်ရှုနိုင်ပါသည်
+        </p>
       </div>
+        <CreateEditModel
+          categories={draws?.drawCategories}
+          agents={customers?.agents}
+          type="create"
+        />
+       </div>
+      <div className="flex gap-2 overflow-x-auto  scrollbar-hide mt-0 md:mt-4">
+        {draws?.drawCategories?.map((cat: any) => {
+          const value = String(cat.id || cat._id);
+          const active = selectedCategory === value;
+
+          return (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSelectedCategory(value)}
+              className={`shrink-0 rounded-xl border px-4 py-3 transition-all ${
+                active
+                  ? "border-primary bg-primary/10"
+                  : "border-slate-300 bg-white hover:border-primary/50"
+              }`}
+            >
+              <div
+                className={`text-sm font-medium ${
+                  active ? "text-primary" : "text-slate-700"
+                }`}
+              >
+                {new Date(cat.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+
 
       <DataTable
         data={Array.isArray(tickets) ? tickets : []}

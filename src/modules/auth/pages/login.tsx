@@ -17,12 +17,12 @@ function Login() {
   };
 
   return (
-    <Card className="flex flex-col items-center justify-center">
+    <div className="flex md:bg-white border border-slate-200 p-6 md:p-12 rounded-3xl flex-col items-center justify-center">
       <div className="flex flex-col items-center text-center mb-6 sm:mb-4">
         <img src={logo} className="w-16 h-16 sm:w-20 sm:h-20 mb-3" alt="logo" />
 
         <div className="text-lg sm:text-xl font-semibold tracking-wide text-slate-800">
-          Admin Dashboard
+          Shwe Latt Login
         </div>
 
         <p className="text-xs sm:text-sm text-slate-400 mt-1">
@@ -63,7 +63,7 @@ function Login() {
           Submit
         </Button>
       </Form>
-    </Card>
+    </div>
   );
 }
 

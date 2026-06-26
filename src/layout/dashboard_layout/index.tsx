@@ -18,9 +18,12 @@ import {
   CalendarOutlined,
   MenuOutlined,
   FileSearchOutlined,
+  TrophyOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
 
 import logo from "../../assets/logo/logo.png";
+import { Ticket, Tickets } from "lucide-react";
 
 const { Header, Content, Sider } = Layout;
 const { Text } = Typography;
@@ -62,7 +65,7 @@ const DashboardLayout = () => {
     {
       label: "အနိုင်ရသူ ကြည့်ရန်",
       key: "see_winner",
-      icon: <FileSearchOutlined />,
+      icon: <TrophyOutlined />,
     },
     {
       label: "ထီထွက်ရက်များ",
@@ -72,7 +75,7 @@ const DashboardLayout = () => {
     {
       label: "ထီလက်မှတ်များ",
       key: "tickets",
-      icon: <FileTextOutlined />,
+      icon: <Ticket size={16} />,
     },
     {
       label: "အေးဂျင့်များ",
@@ -89,11 +92,11 @@ const DashboardLayout = () => {
   const currentPathKey = location.pathname.split("/")[1] || "";
 
   const sidebarContent = (
-    <>
-      <div
-        className="flex flex-col items-center justify-center border-b border-slate-200"
+    <div>
+     <div className=" hidden md:block"> 
+     <div
+        className="flex  md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
         style={{
-          height: 92,
           padding: "16px 0",
         }}
       >
@@ -101,22 +104,14 @@ const DashboardLayout = () => {
           src={logo}
           alt="Logo"
           style={{
-            width: 40,
-            height: 40,
+            width: 50,
+            height: 50,
             objectFit: "contain",
           }}
         />
 
-        <span
-          style={{
-            fontWeight: 600,
-            fontSize: 18,
-            marginTop: 4,
-          }}
-        >
-          Shwe Latt
-        </span>
       </div>
+     </div>
 
       <Menu
         mode="inline"
@@ -126,13 +121,15 @@ const DashboardLayout = () => {
           borderRight: 0,
           background: "transparent",
           paddingTop: 12,
+          paddingLeft : 12,
+          paddingRight:12
         }}
         onClick={({ key }) => {
           navigate(`/${key}`);
           setDrawerOpen(false);
         }}
       />
-    </>
+    </div>
   );
 
   return (
@@ -191,16 +188,19 @@ const DashboardLayout = () => {
             boxShadow: "0 1px 4px rgba(0,21,41,.08)",
           }}
         >
-          <Space size={12}>
-            {isMobile && (
-              <Button
-                variant="outlined"
-                // type="text"
-                icon={<MenuOutlined />}
-                onClick={() => setDrawerOpen(true)}
-              />
-            )}
-          </Space>
+          <div className="flex items-center">
+    {isMobile && (
+      <Button
+        type="text"
+        icon={<MenuOutlined />}
+        onClick={() => setDrawerOpen(true)}
+        className="flex items-center justify-center mr-2"
+      />
+    )}
+    <div className="font-medium uppercase text-xl text-slate-800">
+      Shwe Latt
+    </div>
+  </div>
 
           <Space size={12}>
             {!isMobile && (
@@ -210,24 +210,7 @@ const DashboardLayout = () => {
                   lineHeight: 1.2,
                 }}
               >
-                <Text
-                  strong
-                  style={{
-                    display: "block",
-                    fontSize: 14,
-                  }}
-                >
-                  Harper Nelson
-                </Text>
-
-                <Text
-                  type="secondary"
-                  style={{
-                    fontSize: 11,
-                  }}
-                >
-                  Admin Manager
-                </Text>
+               
               </div>
             )}
 

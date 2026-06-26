@@ -26,7 +26,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   const [modalType, setModalType] = useState<"create" | "edit">(initialType);
 
   const { handleCreate, handleEdit, createLoading, updateLoading } =
-  useDrawCategoryController();
+    useDrawCategoryController();
 
   useEffect(() => {
     if (open) {
@@ -82,23 +82,21 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   };
 
   return (
-    <>
+    <div>
       <Space>
         {record ? (
           <Button
             onClick={() => showModal("edit")}
             className="cursor-pointer text-sm"
             icon={<EditOutlined />}
-          >
-           
-          </Button>
+          ></Button>
         ) : (
           <Button
             type="primary"
             icon={<PlusCircleOutlined />}
             onClick={() => showModal("create")}
           >
-            ထီထွက်ရက်ဖန်တီးမည်
+            ဖန်တီးမည်
           </Button>
         )}
       </Space>
@@ -162,7 +160,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

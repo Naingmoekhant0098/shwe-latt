@@ -5,7 +5,7 @@ import { Input, Space } from "antd";
 import { useDrawCategoryController } from "../hooks/useCustomerController";
 import CreateEditModel from "../components/model/create-edit";
 import { Search } from "lucide-react";
- 
+
 function Category() {
   const {
     drawCategories,
@@ -13,57 +13,34 @@ function Category() {
     totalItems,
     currentPage,
     perPage,
-    
+
     handlePageChange,
   } = useDrawCategoryController();
   const breadCrumbData = [
     {
       title: "Dashboard",
-      link : '/'
+      link: "/",
     },
     {
       title: "Category",
-      link:'/categories'
+      link: "/categories",
     },
-  ]
- 
+  ];
 
   return (
     <Space direction="vertical" size={16} style={{ display: "flex" }}>
-      <Breadcrumb  breadCrumbData={breadCrumbData}/>
-      <Header />
-
-      <div className="flex justify-end items-center gap-4">
-        {/* <div>
-          <Input
-            size="large"
-            className=" text-xs"
-            placeholder="Search....."
-            // onChange={(e) => setSearch(e.target.value)}
-            prefix={<Search className=" size-5" />}
-          />
-        </div> */}
-        <div className=" flex items-center gap-3">
-          {/* <DatePicker
-            size="large"
-            className="w-40"
-            onChange={(date) =>
-              setDate(date ? date.format("YYYY-MM-DD") : null)
-            }
-            placeholder="Select Date"
-          />
-          <Select
-            size="large"
-            className="w-40"
-            placeholder="Select Status"
-            options={[
-              { value: "active", label: "Active" },
-              { value: "inactive", label: "Inactive" },
-            ]}
-          /> */}
-          <CreateEditModel type="create" />
+      <Breadcrumb breadCrumbData={breadCrumbData} />
+    
+      <div className=" flex md:items-center justify-between">
+        <div>
+          <div className="font-semibold text-lg md:text-xl"> ထီထွက်ရက်များ</div>
+          <p className="text-sm text-gray-400 mt-1!">
+            နောက်လာမည့် ထီရက်စွဲများ
+          </p>
         </div>
+        <CreateEditModel type="create" />
       </div>
+
       {
         <DataTable
           data={drawCategories?.drawCategories || []}

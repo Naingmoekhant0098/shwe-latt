@@ -73,7 +73,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   };
 
   return (
-    <>
+    <div>
       <Space>
         {record ? (
           <Button
@@ -88,7 +88,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             icon={<PlusCircleOutlined size={16} />}
             onClick={() => showModal("create")}
           >
-            အေးဂျင့်ဖန်တီးပါ။
+            ဖန်တီးမည်။
           </Button>
         )}
       </Space>
@@ -161,7 +161,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

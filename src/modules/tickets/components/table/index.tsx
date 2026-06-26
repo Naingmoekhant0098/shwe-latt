@@ -10,9 +10,7 @@ interface DataTableProps {
 }
 
 function DataGrid({ data, isLoading,agents,categories }: DataTableProps) {
-  // const { handleDelete } = useTicketController();
-  // const { doctors: draws } = useDrawController();
-
+   
   const gridData: any[] = data.map((ticket) => ({
     key: ticket.id,
     ...ticket,
@@ -23,14 +21,11 @@ function DataGrid({ data, isLoading,agents,categories }: DataTableProps) {
   }));
 
   return (
-    <div className="w-full p-0 md:p-4 bg-gray-50/30">
+    <div className="w-full p-0 md:p-4   bg-gray-50/30">
       <List
         loading={isLoading}
         grid={{ gutter: 10, xs: 1, sm: 1, md: 2, lg: 2, xl: 3, xxl: 4 }}
-        // pagination={{
-        //   ...pagination,
-        //   align: "center",
-        // }}
+        
         dataSource={gridData}
         renderItem={(item) => (
           <List.Item>

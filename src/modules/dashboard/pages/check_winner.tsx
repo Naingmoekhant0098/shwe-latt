@@ -3,6 +3,7 @@ import { Empty, Spin } from "antd";
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import TicketCard from "../components/card";
 import { useGetCheckWinner } from "../hooks/useQuaries";
+import { useEffect } from "react";
 
 function SeeWinner() {
   const { drawCategories: draws } = useDrawCategoryController();
@@ -16,8 +17,6 @@ function SeeWinner() {
     error,
   } = useGetCheckWinner(cate);
 
-  console.log(showWinnerResults);
-
   const winnerTickets =
     showWinnerResults?.data?.winnerTickets ||
     showWinnerResults?.winnerTickets ||
@@ -30,6 +29,14 @@ function SeeWinner() {
   const isEmpty = winnerTickets.length === 0;
 
   const emptyMessage = showWinnerResults?.message || "အနိုင်ရရှိသူမရှိပါ";
+
+  useEffect(() => {
+    
+    if (!cate && draws?.drawCategories?.length > 0) {
+      const latestDrawId = String(draws.drawCategories[0].id || draws.drawCategories[0]._id);
+      setSearchParams({ drawId: latestDrawId });
+    }
+  }, [draws, cate, setSearchParams]);
 
   return (
     <div className="space-y-4">
@@ -58,8 +65,7 @@ function SeeWinner() {
         </div>
       </div>
 
-      {/* Draw Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-4">
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-6">
         {draws?.drawCategories?.map((cat: any) => {
           const value = String(cat.id || cat._id);
           const active = cate === value;
