@@ -157,16 +157,16 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
 
             <Form.Item
               name="drawCategory"
-              label="ကံစမ်းမဲအမျိုးအစား"
+              label="ထီထွက်ရက်"
               rules={[
                 {
                   required: true,
-                  message: "ကျေးဇူးပြု၍ ကံစမ်းမဲအမျိုးအစားကို ရွေးချယ်ပါ။",
+                  message: "ကျေးဇူးပြု၍ ထီထွက်ရက်ကို ရွေးချယ်ပါ။",
                 },
               ]}
             >
               <Select
-                placeholder="အမျိုးအစားရွေးချယ်ရန်"
+                placeholder=" ထီထွက်ရက်ရွေးချယ်ရန်"
                 showSearch
                 optionFilterProp="children"
               >
@@ -175,13 +175,11 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
                     key={cat.id || cat._id}
                     value={cat.id || cat._id}
                   >
-                    {cat.drawNumber} (
                     {new Date(cat.date).toLocaleDateString("en-US", {
-                      month: "short", // Returns "May"
-                      day: "numeric", // Returns "1"
-                      year: "numeric", // Returns "2024"
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
                     })}
-                    )
                   </Select.Option>
                 ))}
               </Select>
