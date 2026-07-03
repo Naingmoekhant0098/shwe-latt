@@ -4,9 +4,9 @@ import { useGetUserDetail } from "./useQuaries";
 
 
 export const useTicketDetailController = (id: number) => {
-  const { data, isLoading } = useGetUserDetail(Number(id));
+  // const { data, isLoading } = useGetUserDetail(Number(id));
   const navigate = useNavigate();
-  const doctor: any = data || {};
+  // const doctor: any = data || {};
   const renderValue = (value: any) => {
     if (typeof value === "object" && value !== null) {
       return value.name || value.label || JSON.stringify(value);
@@ -20,23 +20,21 @@ export const useTicketDetailController = (id: number) => {
     navigate(-1);
   };
 
-  const serviceData = doctor?.services?.map((service: any) => ({
-    key: `${service.id}`,
-    serviceName: service.name,
-    category: service.category,
-    description: service.description,
-    shareType:
-      service.share_type === "fixed_price" ? "Fixed Price" : "Percentage",
-    price: `${service?.price_config?.dr_share_value.toLocaleString()} MMK`,
-  }));
+  // const serviceData = doctor?.services?.map((service: any) => ({
+  //   key: `${service.id}`,
+  //   serviceName: service.name,
+  //   category: service.category,
+  //   description: service.description,
+  //   shareType:
+  //     service.share_type === "fixed_price" ? "Fixed Price" : "Percentage",
+  //   price: `${service?.price_config?.dr_share_value.toLocaleString()} MMK`,
+  // }));
 
 
   
   return {
     handleBack,
-    serviceData,
-    doctor,
-    isLoading,
+    
     renderValue,
   };
 };

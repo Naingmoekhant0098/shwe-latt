@@ -13,6 +13,8 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiDetailResponse<T> {
+  tickets: any;
+  pagination: any;
   status: boolean;
   statusCode: number;
   message: string;

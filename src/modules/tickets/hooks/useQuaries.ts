@@ -20,13 +20,18 @@ export const useGetUsers = (params?: Record<string, any>) => {
 //   });
 // };
 
-export const useGetUserDetail = (id: string) => {
-  return useQuery<TicketResponse, Error>({
-    queryKey: ["tickets", id],
+export const useGetUserDetail = (
+  id: string,
+  currentPage: number,
+  perPage: number
+) => {
+  return useQuery({
+    queryKey: ["tickets", id, currentPage, perPage],
     queryFn: () =>
-      tickets_service
-        .getById<TicketResponse>(id)
-        .then((res: any) => res?.tickets),
+      tickets_service.getById<any>(id, {
+        page: currentPage,
+        limit : perPage
+      }),
     enabled: !!id,
   });
 };

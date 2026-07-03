@@ -9,7 +9,7 @@ interface DataTableProps {
   categories : any;
 }
 
-function DataGrid({ data, isLoading,agents,categories }: DataTableProps) {
+function DataGrid({ data, isLoading,agents,categories , pagination}: DataTableProps) {
    
   const gridData: any[] = data.map((ticket) => ({
     key: ticket.id,
@@ -25,7 +25,11 @@ function DataGrid({ data, isLoading,agents,categories }: DataTableProps) {
       <List
         loading={isLoading}
         grid={{ gutter: 10, xs: 1, sm: 1, md: 2, lg: 2, xl: 3, xxl: 4 }}
-        
+        pagination={{
+          ...pagination,
+          position: "bottom",
+          showSizeChanger: true,
+        }}
         dataSource={gridData}
         renderItem={(item) => (
           <List.Item>

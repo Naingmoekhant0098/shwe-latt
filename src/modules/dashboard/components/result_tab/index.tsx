@@ -1,3 +1,5 @@
+
+
 import { Button, Empty, Select, Spin } from "antd";
 import ResultCard from "../result_card";
 import { EyeOutlined } from "@ant-design/icons";
@@ -6,9 +8,26 @@ import { useResultController } from "../../hooks/useTicketController";
 import { useState } from "react";
 
 function ResultTab() {
-  const [cate, setCate] = useState();
-  const { results, handleSearch, isLoading, error } = useResultController();
+  const [cate, setCate] = useState<string | undefined>();
+   
+  const [hasSearched, setHasSearched] = useState(false); 
+  
+  const { results, handleSearch, isLoading, checkingError } = useResultController();
   const { drawCategories: draws } = useDrawCategoryController();
+
+  const onSearchClick = () => {
+    if (cate) {
+      handleSearch(cate);
+      setHasSearched(true);
+    }
+  };
+
+  const onClearOrChange = (value: string | undefined) => {
+    setCate(value);
+    if (!value) {
+      setHasSearched(false); // Reset when user clears the dropdown
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -20,37 +39,38 @@ function ResultTab() {
           ဆုအမျိုးအစားအလိုက် ခွဲခြားထားသော နောက်ဆုံးထီရလဒ်များ
         </p>
       </div>
-      <div className="">
+      
+      <div>
         <div className="flex justify-end gap-3 mb-3 items-center">
-        <Select
-      className="w-full md:w-52 "
+          <Select
+            className="w-full md:w-52"
+            allowClear
+            placeholder="ထီထွက်ရက်ရွေးချယ်ရန်"
+            showSearch={false}
+            optionFilterProp="children"
+            value={cate}
+            onChange={onClearOrChange}
+          >
+            {draws?.drawCategories?.map((cat: any) => (
+              <Select.Option key={cat.id || cat._id} value={cat.id || cat._id}>
+                {new Date(cat.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </Select.Option>
+            ))}
+          </Select>
 
-          placeholder="ထီထွက်ရက်ရွေးချယ်ရန်"
-          showSearch={false}
-          optionFilterProp="children"
-          value={cate}
-          onChange={(value) => setCate(value)}
-        >
-          {draws?.drawCategories?.map((cat) => (
-            <Select.Option key={cat.id || cat._id} value={cat.id || cat._id}>
-              {new Date(cat.date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </Select.Option>
-          ))}
-        </Select>
-
-        <Button
-          disabled={!cate}
-          onClick={() => handleSearch(cate)}
-          type="primary"
-          icon={<EyeOutlined />}
-        >
-          ရလဒ်ကြည့်ရန်
-        </Button>
-      </div>
+          <Button
+            disabled={!cate}
+            onClick={onSearchClick}
+            type="primary"
+            icon={<EyeOutlined />}
+          >
+            ရလဒ်ကြည့်ရန်
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -58,14 +78,18 @@ function ResultTab() {
           <Spin size="large" />
           <div>ရှာဖွေနေပါသည်</div>
         </div>
-      ) : error ? (
-        <div className=" mt-4 py-20">
-          <Empty></Empty>
-          <div className="text-center text-red-500 ">
-            {error?.response?.data?.message ||
-              error?.message ||
-              "တစ်ခုခုမှားယွင်းနေပါသည်"}
+      ) : checkingError ? (
+        <div className="mt-4 py-20">
+          <Empty description={false} />
+          <div className="text-center text-red-500 mt-2">
+            {checkingError?.response?.data?.message === "No results found for this draw category. Cannot check tickets."
+              ? "ရွေးချယ်ထားသောရက်အတွက် ထီမထွက်သေးပါ။ လက်မှတ်များကို စစ်ဆေး၍မရပါ။"
+              : checkingError?.response?.data?.message || checkingError?.message || "တစ်ခုခုမှားယွင်းနေပါသည်"}
           </div>
+        </div>
+      ) : !hasSearched ? (
+        <div className="text-center text-gray-400 py-20">
+          <Empty description="ထီရလဒ်များကြည့်ရှုရန် ထီထွက်ရက်ကို ဦးစွာရွေးချယ်ပေးပါ" />
         </div>
       ) : results?.results?.length ? (
         <div className="space-y-3">
@@ -74,10 +98,13 @@ function ResultTab() {
           ))}
         </div>
       ) : (
-        <div className="text-center text-gray-400 py-20">ရလဒ်မရှိပါ</div>
+        <div className="text-center text-gray-400 py-20">
+          <Empty description="ရွေးချယ်ထားသောရက်အတွက် ထီမထွက်သေးပါ။" />
+        </div>
       )}
     </div>
   );
 }
 
 export default ResultTab;
+

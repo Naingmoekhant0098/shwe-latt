@@ -1,10 +1,10 @@
 import DataTable from "../components/table";
-import Header from "../components/header";
+ 
 import Breadcrumb from "../components/breadcrumb";
-import { Button, Input, Select, Space } from "antd";
+import { Space } from "antd";
 import { useTicketController } from "../hooks/useTicketController";
 import CreateEditModel from "../components/model/create-edit";
-import { Search } from "lucide-react";
+ 
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import { useCustomerController } from "../../agent/hooks/useCustomerController";
 import { useEffect } from "react";
@@ -16,7 +16,7 @@ function Tickets() {
     totalItems,
     currentPage,
     perPage,
-    setSearch,
+    setCurrentPage,
     handlePageChange,
     selectedCategory,
     setSelectedCategory,
@@ -37,6 +37,7 @@ function Tickets() {
       setSelectedCategory(latestDrawId);
     }
   }, [latestDrawId, selectedCategory, setSelectedCategory]);
+  console.log(totalItems, "totalItems");
 
   return (
     <Space direction="vertical" size={12} style={{ display: "flex" }}>
@@ -63,7 +64,10 @@ function Tickets() {
             <button
               key={value}
               type="button"
-              onClick={() => setSelectedCategory(value)}
+              onClick={() => {
+                setCurrentPage(1);
+                setSelectedCategory(value)
+              }}
               className={`shrink-0 rounded-xl border px-4 py-3 transition-all ${
                 active
                   ? "border-primary bg-primary/10"
@@ -98,7 +102,7 @@ function Tickets() {
           pageSize: perPage,
           total: totalItems,
           onChange: handlePageChange,
-          showSizeChanger: true,
+          showSizeChanger: false,
         }}
       />
     </Space>

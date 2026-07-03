@@ -14,16 +14,12 @@ import type { TicketRequest } from "../type";
 export const useTicketController = () => {
   const { mutateAsync: deleteUser } = useDeleteUser();
   const { mutateAsync: updateUser, isPending: updateLoading } = useUpdateUser();
-  const [perPage, setPerPage] = useState<number>(10);
+  const [perPage, setPerPage] = useState<number>(50);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [search, setSearch] = useState<string>("");
-  const [date, setDate] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-
-  const { data: tickets, isLoading } = useGetUserDetail(selectedCategory);
+  const { data: ticketResponse, isLoading } = useGetUserDetail(selectedCategory,currentPage,perPage);
   const { mutateAsync, isPending: createLoading } = useCreateUser();
-  const totalItems = tickets?.pagination?.total || 0;
+  const totalItems = ticketResponse?.pagination?.totalTickets || 0;
   const navigate = useNavigate();
 
   const handlePageChange = (page: number, pageSize: number) => {
@@ -82,20 +78,17 @@ export const useTicketController = () => {
     handleDelete,
     handleDetail,
     handleEdit,
-    tickets,
+    tickets : ticketResponse?.tickets,
     isLoading,
     totalItems,
     currentPage,
     perPage,
-    viewMode,
-    setViewMode,
     handlePageChange,
     updateLoading,
     handleCreate,
     createLoading,
-    setSearch,
-    setDate,
     selectedCategory,
     setSelectedCategory,
+    setCurrentPage
   };
 };

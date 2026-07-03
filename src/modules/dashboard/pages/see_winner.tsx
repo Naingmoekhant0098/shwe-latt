@@ -57,6 +57,7 @@ function CheckWinner() {
             size="large"
             placeholder="ထီဖွင့်ရက် ရွေးချယ်ပါ"
             value={tempCate}
+            allowClear
             onChange={(value) => setTempCate(value)}
             options={(draws?.drawCategories || []).map((cat: any) => ({
               value: String(cat.id ?? cat._id),
@@ -114,7 +115,10 @@ function CheckWinner() {
                   />
 
                   <h3 className="mt-4! text-lg font-semibold text-yellow-600">
-                    {showWinnerResults?.message}
+                    {showWinnerResults?.message ===
+                    "No results found for this draw category. Cannot check tickets."
+                      ? `ရွေးချယ်ထားသောရက်အတွက် ထီမထွက်သေးပါ။ လက်မှတ်များကို စစ်ဆေး၍မရပါ။`
+                      : showWinnerResults?.message}
                   </h3>
                 </div>
               )}
@@ -131,7 +135,7 @@ function CheckWinner() {
               />
 
               <h3 className="mt-4 text-xl font-semibold text-red-600">
-                အနိုင်မရရှိပါ
+                {error?.message || "အမှားတစ်ခုခုဖြစ်ပွားနေပါသည်။"}
               </h3>
             </div>
           )}

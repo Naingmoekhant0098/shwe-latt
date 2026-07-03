@@ -10,13 +10,15 @@ import "antd/dist/reset.css";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 0,
-      gcTime: 0,
-      refetchOnWindowFocus: true,  
-      retry: false,               
+      staleTime: 0,           
+      gcTime: 0,               
+      refetchOnMount: "always",
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      retry: false,
     },
   },
-})
+});
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
   <BrowserRouter>
