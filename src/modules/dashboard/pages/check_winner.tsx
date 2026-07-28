@@ -1,21 +1,26 @@
 import { useSearchParams } from "react-router-dom";
-import { Empty, Spin } from "antd";
+import { Empty, Select, Spin } from "antd";
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import TicketCard from "../components/card";
 import { useGetCheckWinner } from "../hooks/useQuaries";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useGetUsers } from "../../agent/hooks/useQuaries";
 
 function SeeWinner() {
   const { drawCategories: draws } = useDrawCategoryController();
   const [searchParams, setSearchParams] = useSearchParams();
-
+  const { data: agentResponse } = useGetUsers();
+  
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   const cate = searchParams.get("drawId") || "";
+
+  const activeAgentId = selectedAgentId && selectedAgentId.trim() !== "" ? selectedAgentId : undefined;
 
   const {
     data: showWinnerResults,
     isLoading: showWinnerLoading,
     error,
-  } = useGetCheckWinner(cate);
+  } = useGetCheckWinner(cate, activeAgentId);
 
   const winnerTickets =
     showWinnerResults?.data?.winnerTickets ||
@@ -27,31 +32,56 @@ function SeeWinner() {
   };
 
   const isEmpty = winnerTickets.length === 0;
-
   const emptyMessage = showWinnerResults?.message || "အနိုင်ရရှိသူမရှိပါ";
 
   useEffect(() => {
-    
     if (!cate && draws?.drawCategories?.length > 0) {
-      const latestDrawId = String(draws.drawCategories[0].id || draws.drawCategories[0]._id);
+      const latestDrawId = String(
+        draws.drawCategories[0].id || draws.drawCategories[0]._id
+      );
       setSearchParams({ drawId: latestDrawId });
     }
   }, [draws, cate, setSearchParams]);
 
   return (
     <div className="space-y-4">
-      
-      <div className="mb-3">
-        <h2 className="text-lg font-semibold text-slate-800">
-          အနိုင်ရသူ ကြည့်ရန်
-        </h2>
+      <div className="flex items-center justify-between">
+        <div className="mb-3">
+          <h2 className="text-lg font-semibold text-slate-800">
+            အနိုင်ရသူ ကြည့်ရန်
+          </h2>
+          <div className="text-sm text-slate-500">
+            ရက်စွဲရွေးချယ်ပြီး အနိုင်ရရှိသူများကို ကြည့်ရှုနိုင်ပါသည်
+          </div>
+        </div>
 
-        <div className="text-sm text-slate-500">
-        ရက်စွဲရွေးချယ်ပြီး အနိုင်ရရှိသူများကို ကြည့်ရှုနိုင်ပါသည်
-           
+        <div>
+          <div className="w-full sm:w-56 flex items-center gap-2">
+            <Select
+              showSearch
+              className="w-full sm:w-56"
+              size="large"
+              placeholder="အေးဂျင့် ရွေးပါ"
+              value={selectedAgentId || undefined}
+              allowClear
+              filterOption={(input, option) =>
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              onChange={(value) => {
+                setSelectedAgentId(value || "");
+              }}
+              options={agentResponse?.agents?.map((agent: any) => ({
+                value: String(agent.id ?? agent._id),
+                label: agent.name,
+              }))}
+            />
+          </div>
         </div>
       </div>
 
+      {/* Draw Category Filter */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-6">
         {draws?.drawCategories?.map((cat: any) => {
           const value = String(cat.id || cat._id);
@@ -82,9 +112,9 @@ function SeeWinner() {
             </button>
           );
         })}
-        
       </div>
 
+      {/* Results */}
       {showWinnerLoading ? (
         <div className="flex justify-center items-center py-24">
           <Spin size="large" />

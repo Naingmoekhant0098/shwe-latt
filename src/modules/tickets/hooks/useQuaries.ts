@@ -6,7 +6,7 @@ import type {
 } from "../../../shared/schemes/api_response";
 import { tickets_service } from "../service/ticket_service";
 
-export const useGetUsers = (params?: Record<string, any>) => {
+export const useGetTickets = (params?: Record<string, any>) => {
   return useQuery<ApiListResponse<TicketResponse>, Error>({
     queryKey: ["tickets", params],
     queryFn: () => tickets_service.getPaginatedData<TicketResponse>(params),
@@ -20,7 +20,7 @@ export const useGetUsers = (params?: Record<string, any>) => {
 //   });
 // };
 
-export const useGetUserDetail = (
+export const useGetTicketDetail = (
   id: string,
   currentPage: number,
   perPage: number
@@ -30,13 +30,13 @@ export const useGetUserDetail = (
     queryFn: () =>
       tickets_service.getById<any>(id, {
         page: currentPage,
-        limit : perPage
+        limit: perPage,
       }),
     enabled: !!id,
   });
 };
 
-export const useCreateUser = () => {
+export const useCreateTicket = () => {
   const queryClient = useQueryClient();
   return useMutation<ApiDetailResponse<TicketResponse>, Error, TicketRequest>({
     mutationFn: (data) => tickets_service.create<TicketResponse>(data),
@@ -48,7 +48,18 @@ export const useCreateUser = () => {
   });
 };
 
-export const useUpdateUser = () => {
+export const useGetTicketByAgentId = (
+  agentId: string,
+  drawCategoryId: string
+) => {
+  return useQuery({
+    queryKey: ["mtickets", "magent", agentId, drawCategoryId],
+    queryFn: () => tickets_service.getByAgentId<any>(agentId, drawCategoryId),
+    enabled: !!agentId && !!drawCategoryId,
+  });
+};
+
+export const useUpdateTicket = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -65,7 +76,23 @@ export const useUpdateUser = () => {
   });
 };
 
-export const useDeleteUser = () => {
+export const useTransferTickets = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<ApiDetailResponse<any>, Error, any>({
+    mutationFn: (payload) => tickets_service.transferTickets(payload),
+    onSuccess: () => {
+      // Invalidate general tickets query
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      // Invalidate agent tickets query to refresh MoveTickets screen
+      queryClient.invalidateQueries({ queryKey: ["mtickets"] });
+    },
+  });
+};
+
+
+
+export const useDeleteTicket = () => {
   const queryClient = useQueryClient();
 
   return useMutation<ApiDetailResponse<TicketResponse>, Error, number>({

@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useGetUserDetail } from "./useQuaries";
-
-
+ 
 
 export const useTicketDetailController = (id: number) => {
   // const { data, isLoading } = useGetUserDetail(Number(id));

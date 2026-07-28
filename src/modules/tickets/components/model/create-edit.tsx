@@ -89,7 +89,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             className="bg-red-100 mt-[2px]! hover:bg-red-200 text-green-600! flex items-center"
           >
             <EditOutlined style={{ fontSize: "14px" }} />
-            <span className="text-[11px] ml-1">ပြင်ဆင်မည်</span>
+            
           </Button>
         ) : (
           <Button

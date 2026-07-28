@@ -1,13 +1,15 @@
 import DataTable from "../components/table";
- 
+
 import Breadcrumb from "../components/breadcrumb";
-import { Space } from "antd";
+import { Button, Space } from "antd";
 import { useTicketController } from "../hooks/useTicketController";
 import CreateEditModel from "../components/model/create-edit";
- 
+
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import { useCustomerController } from "../../agent/hooks/useCustomerController";
 import { useEffect } from "react";
+import { MoveHorizontal, Ticket } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 function Tickets() {
   const {
@@ -23,7 +25,7 @@ function Tickets() {
   } = useTicketController();
 
   const { drawCategories: draws } = useDrawCategoryController();
-  const { doctors: customers } = useCustomerController();
+  const { agents: customers } = useCustomerController();
 
   const latestDraw = draws?.drawCategories?.reduce((latest, current) => {
     if (!latest) return current;
@@ -38,23 +40,29 @@ function Tickets() {
     }
   }, [latestDrawId, selectedCategory, setSelectedCategory]);
   console.log(totalItems, "totalItems");
+  const navigate = useNavigate();
 
   return (
     <Space direction="vertical" size={12} style={{ display: "flex" }}>
       <Breadcrumb />
-       <div className=" flex md:items-center justify-between">
-       <div >
-        <div className="font-semibold text-lg md:text-xl">ထီမဲနံပါတ်များ</div>
-        <p className="text-sm text-gray-400 mt-1!">
-          ရက်စွဲအလိုက် ထီမဲရလဒ်များကို ကြည့်ရှုနိုင်ပါသည်
-        </p>
+      <div className=" flex md:items-center justify-between">
+        <div>
+          <div className="font-semibold text-lg md:text-xl">ထီမဲနံပါတ်များ</div>
+          <p className="text-sm text-gray-400 mt-1!">
+            ရက်စွဲအလိုက် ထီမဲရလဒ်များကို ကြည့်ရှုနိုင်ပါသည်
+          </p>
+        </div>
+        <div className=" flex items-center gap-3">
+          <Button color="gold" variant="outlined" onClick={()=>navigate('/move-tickets')} icon={<Ticket size={14} />}>
+            <span className="">ထီရွှေ့ရန်</span>
+          </Button>
+          <CreateEditModel
+            categories={draws?.drawCategories}
+            agents={customers?.agents}
+            type="create"
+          />
+        </div>
       </div>
-        <CreateEditModel
-          categories={draws?.drawCategories}
-          agents={customers?.agents}
-          type="create"
-        />
-       </div>
       <div className="flex gap-2 overflow-x-auto  scrollbar-hide mt-0 md:mt-4">
         {draws?.drawCategories?.map((cat: any) => {
           const value = String(cat.id || cat._id);
@@ -66,7 +74,7 @@ function Tickets() {
               type="button"
               onClick={() => {
                 setCurrentPage(1);
-                setSelectedCategory(value)
+                setSelectedCategory(value);
               }}
               className={`shrink-0 rounded-xl border px-4 py-3 transition-all ${
                 active
@@ -89,8 +97,6 @@ function Tickets() {
           );
         })}
       </div>
-
-
 
       <DataTable
         data={Array.isArray(tickets) ? tickets : []}

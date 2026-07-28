@@ -13,6 +13,7 @@ export interface ApiResponse<T> {
 }
 
 export interface ApiDetailResponse<T> {
+  agent: any;
   tickets: any;
   pagination: any;
   status: boolean;
@@ -23,6 +24,7 @@ export interface ApiDetailResponse<T> {
 }
 
 export interface ApiListResponse<T> {
+  tickets: any[];
   pagination: any;
   length: any;
   drawCategories: any;

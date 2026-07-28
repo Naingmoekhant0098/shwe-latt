@@ -93,25 +93,24 @@ const DashboardLayout = () => {
 
   const sidebarContent = (
     <div>
-     <div className=" hidden md:block"> 
-     <div
-        className="flex  md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
-        style={{
-          padding: "16px 0",
-        }}
-      >
-        <img
-          src={logo}
-          alt="Logo"
+      <div className=" hidden md:block">
+        <div
+          className="flex  md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
           style={{
-            width: 50,
-            height: 50,
-            objectFit: "contain",
+            padding: "16px 0",
           }}
-        />
-
+        >
+          <img
+            src={logo}
+            alt="Logo"
+            style={{
+              width: 50,
+              height: 50,
+              objectFit: "contain",
+            }}
+          />
+        </div>
       </div>
-     </div>
 
       <Menu
         mode="inline"
@@ -121,8 +120,8 @@ const DashboardLayout = () => {
           borderRight: 0,
           background: "transparent",
           paddingTop: 12,
-          paddingLeft : 12,
-          paddingRight:12
+          paddingLeft: 12,
+          paddingRight: 12,
         }}
         onClick={({ key }) => {
           navigate(`/${key}`);
@@ -185,22 +184,21 @@ const DashboardLayout = () => {
             justifyContent: "space-between",
             padding: "0 12px",
             height: 64,
-            boxShadow: "0 1px 4px rgba(0,21,41,.08)",
           }}
         >
           <div className="flex items-center">
-    {isMobile && (
-      <Button
-        type="text"
-        icon={<MenuOutlined />}
-        onClick={() => setDrawerOpen(true)}
-        className="flex items-center justify-center mr-2"
-      />
-    )}
-    <div className="font-medium uppercase text-xl text-slate-800">
-      Shwe Latt
-    </div>
-  </div>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<MenuOutlined />}
+                onClick={() => setDrawerOpen(true)}
+                className="flex items-center justify-center mr-2"
+              />
+            )}
+            <div className="font-medium uppercase text-xl text-slate-800">
+              Shwe Latt
+            </div>
+          </div>
 
           <Space size={12}>
             {!isMobile && (
@@ -209,9 +207,7 @@ const DashboardLayout = () => {
                   textAlign: "right",
                   lineHeight: 1.2,
                 }}
-              >
-               
-              </div>
+              ></div>
             )}
 
             <Avatar

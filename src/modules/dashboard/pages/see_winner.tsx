@@ -10,11 +10,13 @@ import { Button, Select } from "antd";
 
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
 import { useCheckWinners } from "../hooks/useQuaries";
+import { useGetUsers } from "../../user/hooks/useQuaries";
 
 function CheckWinner() {
   const { drawCategories: draws } = useDrawCategoryController();
-
+  const { data: agentResponse } = useGetUsers();
   const [cate, setCate] = useState<string>();
+  const [agentId, setSelectedAgentId] = useState<string>();
   const [tempCate, setTempCate] = useState<string>();
 
   const {
@@ -37,15 +39,18 @@ function CheckWinner() {
   return (
     <div className="max-w-4xl mx-auto px-0 py-6 pt-0">
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">
-            အနိုင်ရသူ စစ်ဆေးရန်
-          </h2>
+         
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-slate-800">
+              အနိုင်ရသူ စစ်ဆေးရန်
+            </h2>
 
-          <p className="text-sm text-slate-500 mt-1">
-            ထီဖွင့်ရက်ရွေးချယ်ပြီး အနိုင်ရ/မရ စစ်ဆေးပါ
-          </p>
-        </div>
+            <p className="text-sm text-slate-500 mt-1">
+              ထီဖွင့်ရက်ရွေးချယ်ပြီး အနိုင်ရ/မရ စစ်ဆေးပါ
+            </p>
+          </div>
+         
+         
 
         <div className="mb-5">
           <label className="block text-xs text-slate-500 mb-2">

@@ -1,5 +1,8 @@
 import api from "../../../app/api/axios";
-import type { ApiDetailResponse, ApiListResponse } from "../../../shared/schemes/api_response";
+import type {
+  ApiDetailResponse,
+  ApiListResponse,
+} from "../../../shared/schemes/api_response";
 import { apiService } from "../../../shared/service/baseCrud";
 
 const baseService = apiService("/result");
@@ -11,7 +14,6 @@ const getPaginatedData = async <T>(params: any) => {
   return response.data;
 };
 
-
 const getCategoryById = async <T>(
   id: number | string
 ): Promise<ApiDetailResponse<T>> => {
@@ -21,14 +23,10 @@ const getCategoryById = async <T>(
     console.log("First API failed, continue anyway");
   }
 
-  const secondResponse = await api.get<ApiDetailResponse<T>>(
-    `/result/${id}`
-  );
+  const secondResponse = await api.get<ApiDetailResponse<T>>(`/result/${id}`);
 
   return secondResponse.data;
 };
-
-
 
 // const getCategoryById = async <T>(
 //   id: number | string
@@ -42,25 +40,32 @@ const getCategoryById = async <T>(
 //   return secondResponse.data;
 // };
 
-const checkingTicket = async <T>(id: number | string) : Promise<any> => {
-  const response = await api.get<ApiDetailResponse<T>>(`/winner-ticket/${id}`);
+const checkingTicket = async <T>(
+  id: number | string,
+  selectedAgentId: number | string
+): Promise<any> => {
+  const response = await api.get<ApiDetailResponse<T>>(
+    `/winner-ticket/${id}?agentId=${selectedAgentId}`
+  );
   return {
     data: response.data,
-    status: response.status,  
+    status: response.status,
   };
 };
- 
-const checkWinnerTickets = async <T>(id: number | string) : Promise<ApiDetailResponse<T>> => {
-  const response = await api.post<ApiDetailResponse<T>>(`/winner-ticket/${id}/check`);
+
+const checkWinnerTickets = async <T>(
+  id: number | string
+): Promise<ApiDetailResponse<T>> => {
+  const response = await api.post<ApiDetailResponse<T>>(
+    `/winner-ticket/${id}/check`
+  );
   return response.data;
 };
- 
 
- 
 export const result_service = {
   ...baseService,
   getPaginatedData,
   getCategoryById,
   checkingTicket,
-  checkWinnerTickets
+  checkWinnerTickets,
 };

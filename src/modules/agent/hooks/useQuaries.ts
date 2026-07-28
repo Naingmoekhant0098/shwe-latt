@@ -8,7 +8,7 @@ import { customer_service } from "../service/customer_service";
 
 export const useGetUsers = (params?: Record<string, any>) => {
   return useQuery<ApiListResponse<CustomerResponse>, Error>({
-    queryKey: ["users", params],
+    queryKey: ["agents", params],
     queryFn: () => customer_service.getPaginatedData<CustomerResponse>(params),
   });
 };
@@ -20,11 +20,11 @@ export const useGetUsers = (params?: Record<string, any>) => {
 //   });
 // };
 
-export const useGetUserDetail = (id: number) => {
+export const useGetAgentDetail = (id: string) => {
   return useQuery<CustomerResponse, Error>({
-    queryKey: ["user", id],
+    queryKey: ["agents", id],
     queryFn: () =>
-      customer_service.getById<CustomerResponse>(id).then((res) => res.data),
+      customer_service.getById<CustomerResponse>(id).then((res) => res?.agent),
     enabled: !!id,
   });
 };
@@ -38,7 +38,7 @@ export const useCreateUser = () => {
   >({
     mutationFn: (data) => customer_service.create<CustomerResponse>(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
     },
   });
 };
@@ -54,8 +54,8 @@ export const useUpdateUser = () => {
     mutationFn: ({ id, data }) =>
       customer_service.update<CustomerResponse>(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
-      queryClient.invalidateQueries({ queryKey: ["user", variables.id] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
+      queryClient.invalidateQueries({ queryKey: ["agent", variables.id] });
     },
   });
 };
@@ -66,7 +66,7 @@ export const useDeleteUser = () => {
   return useMutation<ApiDetailResponse<CustomerResponse>, Error, number>({
     mutationFn: (id) => customer_service.remove<CustomerResponse>(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["agents"] });
     },
   });
 };

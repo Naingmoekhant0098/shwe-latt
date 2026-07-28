@@ -1,10 +1,9 @@
 import { message } from "antd";
 import {
-  useCreateUser,
-  useDeleteUser,
-  useGetUserDetail,
-   
-  useUpdateUser,
+  useCreateTicket,
+  useGetTicketDetail,
+  useDeleteTicket,
+  useUpdateTicket,
 } from "./useQuaries";
 import { showDeleteDoctorConfirm } from "../components/delete_confirm";
 import { useState } from "react";
@@ -12,13 +11,18 @@ import { useNavigate } from "react-router-dom";
 import type { TicketRequest } from "../type";
 
 export const useTicketController = () => {
-  const { mutateAsync: deleteUser } = useDeleteUser();
-  const { mutateAsync: updateUser, isPending: updateLoading } = useUpdateUser();
+  const { mutateAsync: deleteTicket } = useDeleteTicket();
+  const { mutateAsync: updateTicket, isPending: updateLoading } = useUpdateTicket();
   const [perPage, setPerPage] = useState<number>(50);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const { data: ticketResponse, isLoading } = useGetUserDetail(selectedCategory,currentPage,perPage);
-  const { mutateAsync, isPending: createLoading } = useCreateUser();
+
+  const { data: ticketResponse, isLoading } = useGetTicketDetail(
+    selectedCategory,
+    currentPage,
+    perPage
+  );
+  const { mutateAsync, isPending: createLoading } = useCreateTicket();
   const totalItems = ticketResponse?.pagination?.totalTickets || 0;
   const navigate = useNavigate();
 
@@ -30,7 +34,7 @@ export const useTicketController = () => {
   const handleDelete = (record: any) => {
     showDeleteDoctorConfirm(record, async () => {
       try {
-        await deleteUser(record.id);
+        await deleteTicket(record.id);
         message.success("လက်မှတ်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။");
       } catch {
         message.error("လက်မှတ်ဖျက်ရန် အဆင်မပြေပါသဖြင့် ပြန်လည်ကြိုးစားပါ။");
@@ -42,9 +46,11 @@ export const useTicketController = () => {
     navigate(`/doctors/${id}`);
   };
 
+ 
+
   const handleEdit = async (id: number, data: TicketRequest) => {
     try {
-      await updateUser({ id, data });
+      await updateTicket({ id, data });
       return {
         success: true,
         message: "လက်မှတ်အချက်အလက်ကို အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။",
@@ -78,7 +84,7 @@ export const useTicketController = () => {
     handleDelete,
     handleDetail,
     handleEdit,
-    tickets : ticketResponse?.tickets,
+    tickets: ticketResponse?.tickets,
     isLoading,
     totalItems,
     currentPage,
@@ -89,6 +95,6 @@ export const useTicketController = () => {
     createLoading,
     selectedCategory,
     setSelectedCategory,
-    setCurrentPage
+    setCurrentPage,
   };
 };

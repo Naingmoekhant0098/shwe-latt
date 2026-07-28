@@ -25,11 +25,11 @@ export const useGetResultDetail = (id: string) => {
   });
 };
 
-export const useGetCheckWinner = (id: string) => {
+export const useGetCheckWinner = (id: string,selectedAgentId : string) => {
   return useQuery<any, Error>({
-    queryKey: ["check-winner", id],
+    queryKey: ["check-winner", id,selectedAgentId],
     queryFn: async () => {
-      const res = await result_service.checkingTicket<any>(id);
+      const res = await result_service.checkingTicket<any>(id,selectedAgentId);
       return res;
     },
     enabled: !!id,
@@ -37,7 +37,7 @@ export const useGetCheckWinner = (id: string) => {
 };
 
 export const useCheckWinners = (id?: string) => {
-  console.log("hook id:", id);
+ 
 
   return useQuery<any, Error>({
     queryKey: ["see-winner-result", id],
@@ -45,10 +45,10 @@ export const useCheckWinners = (id?: string) => {
       console.log("queryFn running with id:", id);
 
       const res = await result_service.checkWinnerTickets<any>(id);
-      console.log("API response:", res);
+     
 
       return res?.data || res;
     },
-    enabled: !!id, // 🔥 THIS IS CRITICAL
+    enabled: !!id,  
   });
 };
