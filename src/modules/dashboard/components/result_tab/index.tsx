@@ -444,7 +444,7 @@ function ResultTab() {
     const last3Part = str.slice(-3);
 
     return (
-      <span className="inline-flex items-center tracking-wider">
+      <span className="inline-flex text-black items-center tracking-wider">
         <span>{mainPart}</span>
         <span className="font-bold text-amber-600 px-1 rounded">
           {last3Part}

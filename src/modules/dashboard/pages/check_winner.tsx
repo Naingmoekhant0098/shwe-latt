@@ -81,7 +81,6 @@ function SeeWinner() {
         </div>
       </div>
 
-      {/* Draw Category Filter */}
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mt-6">
         {draws?.drawCategories?.map((cat: any) => {
           const value = String(cat.id || cat._id);

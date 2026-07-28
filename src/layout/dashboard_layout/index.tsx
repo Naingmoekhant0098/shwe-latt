@@ -5,10 +5,13 @@ import {
   theme,
   Avatar,
   Space,
-  Typography,
   Drawer,
   Button,
+  Modal,
+  Dropdown,
+  message,
 } from "antd";
+import type { MenuProps } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   DashboardOutlined,
@@ -18,10 +21,14 @@ import {
   MenuOutlined,
   FileSearchOutlined,
   TrophyOutlined,
+  LogoutOutlined,
+  ExclamationCircleOutlined,
+  DownOutlined,
 } from "@ant-design/icons";
 
 import logo from "../../assets/logo/logo.png";
 import { Ticket } from "lucide-react";
+import { removeCookie } from "typescript-cookie";
 
 const { Header, Content, Sider } = Layout;
 
@@ -47,6 +54,36 @@ const DashboardLayout = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+ 
+  const showLogoutConfirm = () => {
+    Modal.confirm({
+      title: "အကောင့်မှ ထွက်မည်မှာ သေချာပါသလား?",
+      icon: <ExclamationCircleOutlined className="!text-rose-500" />,
+      content: "ထွက်ရန် သေချာပါက 'ထွက်မည်' ကို နှိပ်ပါ။",
+      okText: "ထွက်မည်",
+      cancelText: "မထွက်ပါ",
+      okButtonProps: { danger: true },
+      centered: true, // Center the dialog box
+      onOk() {
+        removeCookie('token')
+        window.location.replace('/')
+        message.success("အကောင့်မှ အောင်မြင်စွာ ထွက်ပြီးပါပြီ။");
+         
+      },
+    });
+  };
+
+  const avatarDropdownItems: MenuProps["items"] = [
+     
+    {
+      key: "logout",
+      label: "ထွက်မည် (Logout)",
+      icon: <LogoutOutlined className="!text-rose-500" />,
+      danger: true,
+      onClick: showLogoutConfirm,
+    },
+  ];
 
   const menuItems = [
     {
@@ -79,78 +116,86 @@ const DashboardLayout = () => {
       key: "agents",
       icon: <TeamOutlined />,
     },
+     
     {
-      label: "ပရိုဖိုင်",
-      key: "profile",
-      icon: <UserOutlined />,
+      label: "ထွက်မည်",
+      key: "logout",
+      icon: <LogoutOutlined className="!text-rose-500" />,
+      danger: true,
     },
   ];
 
   const currentPathKey = location.pathname.split("/")[1] || "";
 
   const sidebarContent = (
-    <div>
-      <div className="hidden md:block">
-        <div
-          className="flex md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
-          style={{
-            padding: "16px 0",
-          }}
-        >
-          <img
-            src={logo}
-            alt="Logo"
+    <div className="flex flex-col h-full justify-between">
+      <div>
+        <div className="hidden md:block">
+          <div
+            className="flex md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
             style={{
-              width: 50,
-              height: 50,
-              objectFit: "contain",
+              padding: "16px 0",
             }}
-          />
-          <div>
-            <div className="font-medium uppercase text-lg text-slate-800">
-              Shwe Latt
-            </div>
-            <div className="font-medium uppercase text-xs text-slate-400">
-              ADMIN CONTROL
+          >
+            <img
+              src={logo}
+              alt="Logo"
+              style={{
+                width: 50,
+                height: 50,
+                objectFit: "contain",
+              }}
+            />
+            <div>
+              <div className="font-medium uppercase text-lg text-slate-800">
+                Shwe Latt
+              </div>
+              <div className="font-medium uppercase text-xs text-slate-400">
+                ADMIN CONTROL
+              </div>
             </div>
           </div>
         </div>
+
+        <style>{`
+          .custom-sidebar-menu .ant-menu-item {
+            border-left: 4px solid transparent;
+            border-radius: 10px !important;
+            margin-bottom: 6px !important;
+            transition: all 0.2s ease;
+          }
+          .custom-sidebar-menu .ant-menu-item-selected {
+            border-left: 4px solid #B88E3C !important;
+            background-color: #e6f4ff !important;
+            color: #B88E3C !important;
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+          }
+        `}</style>
+
+        <Menu
+          mode="inline"
+          selectedKeys={[currentPathKey]}
+          items={menuItems}
+          className="custom-sidebar-menu"
+          style={{
+            borderRight: 0,
+            background: "transparent",
+            paddingTop: 12,
+            paddingLeft: 12,
+            paddingRight: 12,
+          }}
+          onClick={({ key }) => {
+            if (key === "logout") {
+              setDrawerOpen(false);
+              showLogoutConfirm();
+            } else {
+              navigate(`/${key}`);
+              setDrawerOpen(false);
+            }
+          }}
+        />
       </div>
-
-      
-      <style>{`
-        .custom-sidebar-menu .ant-menu-item {
-          border-left: 4px solid transparent;
-          border-radius: 10px !important;
-          margin-bottom: 6px !important;
-          transition: all 0.2s ease;
-        }
-        .custom-sidebar-menu .ant-menu-item-selected {
-          border-left: 4px solid #B88E3C !important;
-          background-color: #e6f4ff !important;
-          color: #B88E3C !important;
-          border-radius: 10px !important;
-          font-weight: 600 !important;
-        }
-      `}</style>
-
-      <Menu
-        mode="inline"
-        selectedKeys={[currentPathKey]}
-        items={menuItems}
-        className="custom-sidebar-menu"
-        style={{
-          borderRight: 0,
-          background: "transparent",
-          paddingTop: 12,
-          paddingLeft: 12,
-          paddingRight: 12,
-        }}
-        onClick={({ key }) => {
-          navigate(`/${key}`);
-          setDrawerOpen(false);
-        }}
-      />
     </div>
   );
 
@@ -205,7 +250,7 @@ const DashboardLayout = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 12px",
+            padding: "0 16px",
             height: 64,
           }}
         >
@@ -223,22 +268,22 @@ const DashboardLayout = () => {
             </div>
           </div>
 
-          <Space size={12}>
-            {!isMobile && (
-              <div
-                style={{
-                  textAlign: "right",
-                  lineHeight: 1.2,
-                }}
-              ></div>
-            )}
-
-            <Avatar
-              src="https://i.pravatar.cc/150?u=harper"
-              style={{
-                backgroundColor: "#1890ff",
-              }}
-            />
+          <Space size={16}>
+            <Dropdown
+              menu={{ items: avatarDropdownItems }}
+              trigger={["click"]}
+              placement="bottomRight"
+            >
+              <div className="flex items-center gap-2 cursor-pointer p-1.5 rounded-xl hover:bg-slate-100 transition-all">
+                <Avatar
+                  src="https://i.pravatar.cc/150?u=harper"
+                  style={{
+                    backgroundColor: "#1890ff",
+                  }}
+                />
+                <DownOutlined className="text-xs text-slate-400" />
+              </div>
+            </Dropdown>
           </Space>
         </Header>
 
