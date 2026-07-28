@@ -40,28 +40,15 @@ function SeeWinner() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      
       <div className="mb-3">
         <h2 className="text-lg font-semibold text-slate-800">
           အနိုင်ရသူ ကြည့်ရန်
         </h2>
 
         <div className="text-sm text-slate-500">
-          {winnerTickets.length > 0 && winnerTickets[0]?.DrawCategory?.date ? (
-            <>
-              {new Date(winnerTickets[0].DrawCategory.date).toLocaleDateString(
-                "en-US",
-                {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                }
-              )}{" "}
-              တွင် ထွက်ရှိသော ထီပေါက်သူစာရင်း
-            </>
-          ) : (
-            "ရက်စွဲရွေးချယ်ပြီး အနိုင်ရရှိသူများကို ကြည့်ရှုနိုင်ပါသည်"
-          )}
+        ရက်စွဲရွေးချယ်ပြီး အနိုင်ရရှိသူများကို ကြည့်ရှုနိုင်ပါသည်
+           
         </div>
       </div>
 
@@ -95,6 +82,7 @@ function SeeWinner() {
             </button>
           );
         })}
+        
       </div>
 
       {showWinnerLoading ? (

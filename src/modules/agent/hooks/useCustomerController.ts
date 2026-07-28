@@ -23,9 +23,9 @@ export const useCustomerController = () => {
     search: search,
     date
   };
-  const { data: doctors, isLoading } = useGetUsers(params);
+  const { data: agents, isLoading } = useGetUsers(params);
   const { mutateAsync, isPending: createLoading } = useCreateUser();
-  const totalItems = doctors?.meta?.total || 0;
+  const totalItems = agents?.pagination?.totalAgents || 0;
   const navigate = useNavigate();
   const handlePageChange = (page: number, pageSize: number) => {
     setCurrentPage(page);
@@ -42,7 +42,7 @@ export const useCustomerController = () => {
     });
   };
   const handleDetail = (id: number) => {
-    navigate(`/doctors/${id}`);
+    navigate(`/agents/${id}`);
   };
   const handleEdit = async (id: number, data: CustomerRequest) => {
     try {
@@ -70,7 +70,7 @@ export const useCustomerController = () => {
     handleDelete,
     handleDetail,
     handleEdit,
-    doctors,
+    agents,
     isLoading,
     totalItems,
     currentPage,

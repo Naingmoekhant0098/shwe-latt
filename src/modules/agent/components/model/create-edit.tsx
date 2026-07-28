@@ -144,7 +144,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             label="ဖုန်းနံပါတ်"
             rules={[
               {
-                required: true,
+                required: false,
                 message: "ကျေးဇူးပြု၍ ဖုန်းနံပါတ် ထည့်သွင်းပါ။",
               },
               {

@@ -31,39 +31,7 @@ function DataGrid({ data = [], isLoading, pagination }) {
         }}
         renderItem={(item) => (
           <List.Item className="p-0 mb-3">
-            {/* <div className="flex  flex-col md:gap-3 gap-2  items-center  w-full">
-              <Avatar
-                size={{ xs: 54, sm: 54, md: 72, lg: 84 }}
-                src={item.avatarUrl || item.image || undefined}
-                icon={<UserOutlined />}
-                className="bg-slate-50 border border-slate-100 shadow-sm"
-                style={{ color: "#94a3b8" }}
-              />
-              <div className="flex items-center gap-1 mt-1">
-                <h3 className="text-md sm:text-base font-bold text-slate-800 truncate m-0!">
-                  {item.name || "Unknown Customer"}
-                </h3>
-                <CheckCircleFilled className="text-emerald-500 text-xs flex-shrink-0" />
-              </div>
-
-              <div className="text-sm! flex items-center gap-2 text-slate-600">
-                <span className="text-slate-400"><Phone size={14}/></span>{" "}
-                <span className="font-mono text-slate-600">
-                  {item.phone || "N/A"}
-                </span>
-              </div>
-
-              <div className="flex gap-2 mt-2">
-                <CreateEditModel record={item} type="edit" />
-
-                <Button
-                  danger
-                  onClick={() => handleDelete(item)}
-                  className="flex items-center justify-center px-3"
-                  icon={<TrashIcon size={16} />}
-                />
-              </div>
-            </div> */}
+             
 
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all duration-200 p-4 sm:p-5">
               <div className="flex items-start gap-4">
@@ -76,7 +44,7 @@ function DataGrid({ data = [], isLoading, pagination }) {
                 <div className="  flex flex-row md:flex-col justify-between items-start gap-4 w-full">
                   {" "}
                   <div className="flex-1  min-w-0">
-                    <h3 className="text-base sm:text-lg font-semibold! text-slate-800 truncate">
+                    <h3 className="text-md sm:text-lg  text-slate-800 truncate">
                     {item.name || "မရှိပါ"}
                     </h3>
 

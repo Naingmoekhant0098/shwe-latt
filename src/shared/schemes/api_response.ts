@@ -23,6 +23,8 @@ export interface ApiDetailResponse<T> {
 }
 
 export interface ApiListResponse<T> {
+  pagination: any;
+  length: any;
   drawCategories: any;
   agents: any[];
   status: boolean;
