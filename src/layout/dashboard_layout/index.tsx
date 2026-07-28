@@ -13,20 +13,17 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   DashboardOutlined,
   UserOutlined,
-  FileTextOutlined,
-  TeamOutlined,
   CalendarOutlined,
+  TeamOutlined,
   MenuOutlined,
   FileSearchOutlined,
   TrophyOutlined,
-  TagsOutlined,
 } from "@ant-design/icons";
 
 import logo from "../../assets/logo/logo.png";
-import { Ticket, Tickets } from "lucide-react";
+import { Ticket } from "lucide-react";
 
 const { Header, Content, Sider } = Layout;
-const { Text } = Typography;
 
 const DashboardLayout = () => {
   const navigate = useNavigate();
@@ -63,7 +60,7 @@ const DashboardLayout = () => {
       icon: <FileSearchOutlined />,
     },
     {
-      label: "အနိုင်ရသူ ကြည့်ရန်",
+      label: "အနိုင်ရသူ ကြည့်ရန်",
       key: "see_winner",
       icon: <TrophyOutlined />,
     },
@@ -93,9 +90,9 @@ const DashboardLayout = () => {
 
   const sidebarContent = (
     <div>
-      <div className=" hidden md:block">
+      <div className="hidden md:block">
         <div
-          className="flex  md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
+          className="flex md:h-[92] gap-3 items-center justify-center border-b border-slate-200"
           style={{
             padding: "16px 0",
           }}
@@ -109,13 +106,39 @@ const DashboardLayout = () => {
               objectFit: "contain",
             }}
           />
+          <div>
+            <div className="font-medium uppercase text-lg text-slate-800">
+              Shwe Latt
+            </div>
+            <div className="font-medium uppercase text-xs text-slate-400">
+              ADMIN CONTROL
+            </div>
+          </div>
         </div>
       </div>
+
+      
+      <style>{`
+        .custom-sidebar-menu .ant-menu-item {
+          border-left: 4px solid transparent;
+          border-radius: 10px !important;
+          margin-bottom: 6px !important;
+          transition: all 0.2s ease;
+        }
+        .custom-sidebar-menu .ant-menu-item-selected {
+          border-left: 4px solid #B88E3C !important;
+          background-color: #e6f4ff !important;
+          color: #B88E3C !important;
+          border-radius: 10px !important;
+          font-weight: 600 !important;
+        }
+      `}</style>
 
       <Menu
         mode="inline"
         selectedKeys={[currentPathKey]}
         items={menuItems}
+        className="custom-sidebar-menu"
         style={{
           borderRight: 0,
           background: "transparent",
