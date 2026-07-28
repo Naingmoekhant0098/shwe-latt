@@ -1,14 +1,14 @@
 import { Button, Tag, Spin, Empty, Modal } from "antd";
-import { 
-  ArrowLeft, 
-  Ticket, 
-  Clock, 
-  Trophy, 
-  XCircle, 
-  Coins, 
+import {
+  ArrowLeft,
+  Ticket,
+  Clock,
+  Trophy,
+  XCircle,
+  Coins,
   Calendar,
   Gift,
-  Eye
+  Eye,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useGetAgentDetail } from "../hooks/useQuaries";
@@ -37,7 +37,8 @@ function AgentDetail() {
     }
   }, [draws]);
 
-  const { data: ticketResponse, isLoading: ticketsLoading } = useGetTicketByAgentId(id, cate);
+  const { data: ticketResponse, isLoading: ticketsLoading } =
+    useGetTicketByAgentId(id, cate);
   const tickets = ticketResponse?.tickets || [];
 
   // Open modal for prize details
@@ -60,7 +61,7 @@ function AgentDetail() {
 
     tickets.forEach((t) => {
       const status = (t.status || "").toLowerCase();
-      
+
       if (status === "won" || status === "win" || status === "winning") {
         winCount += 1;
         totalWinAmount += Number(t.totalReward || 0);
@@ -95,36 +96,41 @@ function AgentDetail() {
   const sortedTickets = useMemo(() => {
     const rawTickets = ticketResponse?.tickets || [];
     return [...rawTickets].sort((a, b) => {
-      const isWonA = ["won", "win", "winning"].includes((a.status || "").toLowerCase());
-      const isWonB = ["won", "win", "winning"].includes((b.status || "").toLowerCase());
+      const isWonA = ["won", "win", "winning"].includes(
+        (a.status || "").toLowerCase()
+      );
+      const isWonB = ["won", "win", "winning"].includes(
+        (b.status || "").toLowerCase()
+      );
 
       if (isWonA && !isWonB) return -1; // Move winning ticket up
-      if (!isWonA && isWonB) return 1;  // Move winning ticket up
+      if (!isWonA && isWonB) return 1; // Move winning ticket up
       return 0;
     });
   }, [ticketResponse]);
-
-
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button 
-          onClick={() => navigate(-1)} 
+        <Button
+          onClick={() => navigate(-1)}
           className="flex items-center justify-center border-slate-200"
         >
           <ArrowLeft size={18} />
         </Button>
         <div>
           <h2 className="text-xl font-bold text-slate-800">
-            {agent?.name ? `${agent.name} အသေးစိတ် အချက်အလက်` : "အေးဂျင့် အသေးစိတ်"}
+            {agent?.name
+              ? `${agent.name} အသေးစိတ် အချက်အလက်`
+              : "အေးဂျင့် အသေးစိတ်"}
           </h2>
-          {agent?.phone && <p className="text-xs text-slate-500">{agent.phone}</p>}
+          {agent?.phone && (
+            <p className="text-xs text-slate-500">{agent.phone}</p>
+          )}
         </div>
       </div>
 
-      
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {draws?.drawCategories?.map((cat) => {
           const value = String(cat.id || cat._id);
@@ -160,7 +166,9 @@ function AgentDetail() {
             <Ticket size={20} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">စုစုပေါင်း ထီလက်မှတ်</p>
+            <p className="text-xs text-slate-500 font-medium">
+              စုစုပေါင်း ထီလက်မှတ်
+            </p>
             <p className="text-lg font-bold text-slate-800">{stats.total}</p>
           </div>
         </div>
@@ -181,7 +189,9 @@ function AgentDetail() {
           </div>
           <div>
             <p className="text-xs text-slate-500 font-medium">ပေါက်မဲ</p>
-            <p className="text-lg font-bold text-emerald-600">{stats.winning}</p>
+            <p className="text-lg font-bold text-emerald-600">
+              {stats.winning}
+            </p>
           </div>
         </div>
 
@@ -200,7 +210,9 @@ function AgentDetail() {
             <Coins size={20} />
           </div>
           <div>
-            <p className="text-xs text-slate-500 font-medium">စုစုပေါင်း အနိုင်ရငွေ</p>
+            <p className="text-xs text-slate-500 font-medium">
+              စုစုပေါင်း အနိုင်ရငွေ
+            </p>
             <p className="text-lg font-bold text-purple-600">
               {stats.totalWinAmount.toLocaleString()} TBH
             </p>
@@ -209,7 +221,9 @@ function AgentDetail() {
       </div>
 
       <div className="space-y-3">
-        <h3 className="text-base font-semibold text-slate-800">ထီလက်မှတ်များ စာရင်း</h3>
+        <h3 className="text-base font-semibold text-slate-800">
+          ထီလက်မှတ်များ စာရင်း
+        </h3>
 
         {ticketsLoading ? (
           <div className="flex justify-center py-12 bg-white rounded-2xl border border-slate-100">
@@ -222,7 +236,9 @@ function AgentDetail() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {sortedTickets.map((ticket) => {
-              const isWon = ["won", "win", "winning"].includes((ticket.status || "").toLowerCase());
+              const isWon = ["won", "win", "winning"].includes(
+                (ticket.status || "").toLowerCase()
+              );
 
               return (
                 <div
@@ -231,7 +247,9 @@ function AgentDetail() {
                 >
                   <div className="flex items-start justify-between border-b border-slate-100 pb-2.5">
                     <div>
-                      <span className="text-xs text-slate-400 block font-medium">ထီနံပါတ်</span>
+                      <span className="text-xs text-slate-400 block font-medium">
+                        ထီနံပါတ်
+                      </span>
                       <span className="text-lg font-bold text-slate-800 tracking-wider">
                         {ticket.number || "---"}
                       </span>
@@ -239,28 +257,36 @@ function AgentDetail() {
                     {renderStatusTag(ticket.status)}
                   </div>
 
-                
                   <div className="space-y-2 text-xs text-slate-600">
                     {ticket.createdAt && (
                       <div className="flex items-center gap-1.5 text-slate-400">
                         <Calendar size={13} className="flex-shrink-0" />
                         <span>
-                          {new Date(ticket.createdAt).toLocaleDateString("en-US", {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            
-                          })}
+                          {new Date(ticket.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            }
+                          )}
                         </span>
                       </div>
                     )}
                   </div>
 
-                 
                   <div className="mt-1 pt-2.5 border-t border-slate-100 flex justify-between items-center">
                     <div>
-                      <span className="text-xs text-slate-400 block font-medium">ရရှိငွေ ပမာဏ</span>
-                      <span className={`text-sm font-bold ${ticket.totalReward > 0 ? "text-emerald-600" : "text-slate-700"}`}>
+                      <span className="text-xs text-slate-400 block font-medium">
+                        ရရှိငွေ ပမာဏ
+                      </span>
+                      <span
+                        className={`text-sm font-bold ${
+                          ticket.totalReward > 0
+                            ? "text-emerald-600"
+                            : "text-slate-700"
+                        }`}
+                      >
                         {(ticket.totalReward || 0).toLocaleString()} TBH
                       </span>
                     </div>
@@ -274,7 +300,10 @@ function AgentDetail() {
                         icon={<Eye className=" text-primary!" size={13} />}
                         className="flex items-center gap-1 text-xs rounded-lg"
                       >
-                       <span className=" text-xs text-primary"> ဆုများ ကြည့်ရန်</span>
+                        <span className=" text-xs text-primary">
+                          {" "}
+                          ဆုများ ကြည့်ရန်
+                        </span>
                       </Button>
                     )}
                   </div>
@@ -294,7 +323,12 @@ function AgentDetail() {
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={[
-          <Button key="close" type="primary" onClick={handleCloseModal} className="rounded-lg">
+          <Button
+            key="close"
+            type="primary"
+            onClick={handleCloseModal}
+            className="rounded-lg"
+          >
             ပိတ်မည်
           </Button>,
         ]}
@@ -305,13 +339,17 @@ function AgentDetail() {
           <div className="py-3 space-y-4">
             <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center">
               <div>
-                <span className="text-xs text-slate-400 block font-medium">ထီနံပါတ်</span>
+                <span className="text-xs text-slate-400 block font-medium">
+                  ထီနံပါတ်
+                </span>
                 <span className="text-base font-bold text-slate-800 tracking-wider">
                   {selectedTicket.number}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-xs text-slate-400 block font-medium">စုစုပေါင်း ရရှိငွေ</span>
+                <span className="text-xs text-slate-400 block font-medium">
+                  စုစုပေါင်း ရရှိငွေ
+                </span>
                 <span className="text-base font-bold text-emerald-600">
                   {(selectedTicket.totalReward || 0).toLocaleString()} TBH
                 </span>
@@ -319,7 +357,9 @@ function AgentDetail() {
             </div>
 
             <div>
-              <p className="text-xs font-semibold text-slate-600 mb-2">ရရှိထားသော ဆုများ စာရင်း:</p>
+              <p className="text-xs font-semibold text-slate-600 mb-2">
+                ရရှိထားသော ဆုများ စာရင်း:
+              </p>
               {selectedTicket.prizes && selectedTicket.prizes.length > 0 ? (
                 <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                   {selectedTicket.prizes.map((prize, idx) => (
@@ -327,9 +367,15 @@ function AgentDetail() {
                       key={prize._id || idx}
                       className="flex justify-between items-center p-3 rounded-xl border border-slate-100 bg-white shadow-2xs"
                     >
-                      <span className="text-xs font-medium text-slate-700">
-                        {prize.prizeName}
-                      </span>
+                      <div className=" flex flex-col">
+                        <span className="text-xs font-medium text-slate-700">
+                          {prize.prizeNameMM}
+                        </span>
+                        <span className=" text-xs mt-1 text-slate-400">
+                          {" "}
+                          {prize.prizeName}
+                        </span>
+                      </div>
                       <span className="text-xs font-bold text-emerald-600">
                         +{Number(prize.rewardAmount || 0).toLocaleString()} TBH
                       </span>
@@ -337,7 +383,9 @@ function AgentDetail() {
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 text-center py-4">ဆုအသေးစိတ် မရှိပါ</p>
+                <p className="text-xs text-slate-400 text-center py-4">
+                  ဆုအသေးစိတ် မရှိပါ
+                </p>
               )}
             </div>
           </div>

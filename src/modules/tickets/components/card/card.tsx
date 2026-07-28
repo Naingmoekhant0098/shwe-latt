@@ -220,9 +220,12 @@ function TicketCard({ item, draws, agents }) {
                     key={prize._id || idx}
                     className="flex justify-between items-center p-3 rounded-xl border border-slate-100 bg-slate-50/50"
                   >
-                    <span className="text-xs font-medium text-slate-700">
-                      {prize.prizeName}
+                   <div className=" flex flex-col">
+                   <span className="text-xs font-medium text-slate-700">
+                      {prize.prizeNameMM}
                     </span>
+                    <span className=" text-xs mt-1 text-slate-400"> {prize.prizeName}</span>
+                   </div>
                     <span className="text-xs font-bold text-emerald-600">
                       +{Number(prize.rewardAmount || 0).toLocaleString()} THB
                     </span>

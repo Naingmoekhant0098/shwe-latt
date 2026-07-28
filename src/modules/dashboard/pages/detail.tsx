@@ -129,11 +129,11 @@ function Detail() {
                 {/* LEFT */}
                 <div className="flex flex-col">
                   <span className="text-sm font-medium text-gray-800">
-                    {p.prizeName}
+                    {p.prizeNameMM}
                   </span>
 
-                  <span className="text-xs text-gray-400">
-                    ဆုအမျိုးအစား
+                  <span className="text-xs text-gray-400 mt-1">
+                   ({p.prizeName})
                   </span>
                 </div>
 
