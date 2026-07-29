@@ -34,7 +34,7 @@ export const useTicketController = () => {
   const handleDelete = (record: any) => {
     showDeleteDoctorConfirm(record, async () => {
       try {
-        await deleteTicket(record.id);
+        await deleteTicket(record?._id);
         message.success("လက်မှတ်ကို အောင်မြင်စွာ ဖျက်ပြီးပါပြီ။");
       } catch {
         message.error("လက်မှတ်ဖျက်ရန် အဆင်မပြေပါသဖြင့် ပြန်လည်ကြိုးစားပါ။");
