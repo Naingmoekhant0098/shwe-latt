@@ -25,6 +25,8 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   const { handleCreate, handleEdit, createLoading, updateLoading } =
     useTicketController();
 
+    
+
   useEffect(() => {
     if (open) {
       if (modalType === "edit" && record) {

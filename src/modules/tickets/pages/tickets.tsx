@@ -10,6 +10,7 @@ import { useCustomerController } from "../../agent/hooks/useCustomerController";
 import { useEffect } from "react";
 import { MoveHorizontal, Ticket } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useGetUsers } from "../../agent/hooks/useQuaries";
 
 function Tickets() {
   const {
@@ -25,8 +26,10 @@ function Tickets() {
   } = useTicketController();
 
   const { drawCategories: draws } = useDrawCategoryController();
-  const { agents: customers } = useCustomerController();
+  // const { agents: customers } = useCustomerController();
 
+
+  const {data : agents} = useGetUsers({});
   const latestDraw = draws?.drawCategories?.reduce((latest, current) => {
     if (!latest) return current;
     return new Date(current.date) > new Date(latest.date) ? current : latest;
@@ -39,7 +42,7 @@ function Tickets() {
       setSelectedCategory(latestDrawId);
     }
   }, [latestDrawId, selectedCategory, setSelectedCategory]);
-  console.log(totalItems, "totalItems");
+   
   const navigate = useNavigate();
 
   return (
@@ -58,7 +61,7 @@ function Tickets() {
           </Button>
           <CreateEditModel
             categories={draws?.drawCategories}
-            agents={customers?.agents}
+            agents={agents?.agents}
             type="create"
           />
         </div>
@@ -102,7 +105,7 @@ function Tickets() {
         data={Array.isArray(tickets) ? tickets : []}
         isLoading={isLoading}
         categories={draws?.drawCategories}
-        agents={customers?.agents}
+        agents={agents?.agents}
         pagination={{
           current: currentPage,
           pageSize: perPage,
