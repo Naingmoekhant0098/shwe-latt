@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
-
-const QR_BOX = 180; // px - small scan area for tiny lottery QR codes
-const DEFAULT_ZOOM = 2; // starting zoom (only if the phone supports it)
-
-type ZoomCaps = { min: number; max: number; step: number };
+import { Html5Qrcode } from "html5-qrcode";
 
 export default function Scanner({
   isOpen,
@@ -19,10 +14,7 @@ export default function Scanner({
     "idle" | "requesting" | "granted" | "denied" | "error"
   >("idle");
   const [attempt, setAttempt] = useState(0);
-  const [zoomCaps, setZoomCaps] = useState<ZoomCaps | null>(null);
-  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
-  const scannerRef = useRef<Html5Qrcode | null>(null);
   const onSuccessRef = useRef(scannSuccess);
   const setIsOpenRef = useRef(setIsOpen);
   onSuccessRef.current = scannSuccess;
@@ -33,28 +25,12 @@ export default function Scanner({
     setStatus("idle");
   };
 
-  const applyZoom = async (value: number) => {
-    setZoom(value);
-    try {
-      await scannerRef.current?.applyVideoConstraints({
-        advanced: [{ zoom: value }],
-      } as any);
-    } catch (e) {
-      console.warn("Zoom failed:", e);
-    }
-  };
-
   useEffect(() => {
     if (!isOpen) return;
 
     let cancelled = false;
     let handled = false;
-
-    const scanner = new Html5Qrcode("qr-reader", {
-      verbose: false,
-      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-    });
-    scannerRef.current = scanner;
+    const scanner = new Html5Qrcode("qr-reader");
 
     const safeStop = async () => {
       try {
@@ -67,20 +43,32 @@ export default function Scanner({
 
     const startPromise = (async () => {
       setStatus("requesting");
-      setZoomCaps(null);
       try {
+        const devices = await Html5Qrcode.getCameras();
+        if (cancelled) return;
+
+        if (!devices || devices.length === 0) {
+          setStatus("error");
+          return;
+        }
+
+        const backCamera = devices.find((d) => {
+          const l = d.label.toLowerCase();
+          return l.includes("back") || l.includes("environment") || l.includes("rear");
+        });
+        const cameraId = backCamera ? backCamera.id : devices[devices.length - 1].id;
+
         await scanner.start(
-          { facingMode: "environment" },
+          cameraId,
           {
-            fps: 15,
-            qrbox: { width: QR_BOX, height: QR_BOX },
-            videoConstraints: {
-              facingMode: "environment",
-              width: { ideal: 1920 },
-              height: { ideal: 1080 },
+            fps: 20,
+            qrbox: (width, height) => {
+              const size = Math.min(width, height) * 0.65;
+              return { width: size, height: size };
             },
-          } as any,
-          (decodedText: string) => {
+            aspectRatio: 1.0,
+          },
+          (decodedText) => {
             if (handled || cancelled) return;
             handled = true;
 
@@ -93,39 +81,13 @@ export default function Scanner({
           () => {}
         );
 
-        if (cancelled) return;
-        setStatus("granted");
-
-        // continuous autofocus + zoom slider (if the phone supports them)
-        try {
-          const caps: any = scanner.getRunningTrackCapabilities();
-          const advanced: any[] = [];
-
-          if (caps?.focusMode?.includes?.("continuous")) {
-            advanced.push({ focusMode: "continuous" });
-          }
-          if (caps?.zoom) {
-            const min = caps.zoom.min ?? 1;
-            const max = caps.zoom.max ?? 1;
-            const step = caps.zoom.step || 0.1;
-            const start = Math.min(Math.max(DEFAULT_ZOOM, min), max);
-            setZoomCaps({ min, max, step });
-            setZoom(start);
-            advanced.push({ zoom: start });
-          }
-          if (advanced.length) {
-            await scanner.applyVideoConstraints({ advanced } as any);
-          }
-        } catch (e) {
-          console.warn("Could not apply focus/zoom:", e);
-        }
+        if (!cancelled) setStatus("granted");
       } catch (error: any) {
         if (cancelled) return;
         console.error("Scanner Error:", error);
         const errStr = String(error).toLowerCase();
         setStatus(
-          errStr.includes("notallowederror") ||
-            errStr.includes("permission denied")
+          errStr.includes("notallowederror") || errStr.includes("permission denied")
             ? "denied"
             : "error"
         );
@@ -134,10 +96,7 @@ export default function Scanner({
 
     return () => {
       cancelled = true;
-      startPromise.finally(() => {
-        safeStop();
-        if (scannerRef.current === scanner) scannerRef.current = null;
-      });
+      startPromise.finally(safeStop);
     };
   }, [isOpen, attempt]);
 
@@ -145,14 +104,13 @@ export default function Scanner({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/60 p-4"
       onClick={handleClose}
     >
       <div
         className="w-full max-w-[320px] overflow-hidden rounded-2xl bg-gray-900 text-white shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* header */}
         <div className="flex items-center justify-between px-4 py-3">
           <h2 className="text-base font-semibold">Scan Ticket QR</h2>
           <button
@@ -163,8 +121,7 @@ export default function Scanner({
           </button>
         </div>
 
-        {/* camera area (small, square) */}
-        <div className="relative mx-auto aspect-square w-full bg-black overflow-hidden">
+        <div className="relative aspect-square w-full overflow-hidden bg-black">
           <div
             id="qr-reader"
             className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
@@ -208,44 +165,11 @@ export default function Scanner({
               </button>
             </div>
           )}
-
-          {/* laser inside the small scan box */}
-          {status === "granted" && (
-            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-              <div
-                className="relative"
-                style={{ width: QR_BOX, height: QR_BOX }}
-              >
-                <div className="absolute left-0 right-0 h-[2px] bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-[laserMove_2s_ease-in-out_infinite]" />
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* zoom slider */}
-        <div className="px-4 py-3">
-          {zoomCaps ? (
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-400">Zoom</span>
-              <input
-                type="range"
-                min={zoomCaps.min}
-                max={zoomCaps.max}
-                step={zoomCaps.step}
-                value={zoom}
-                onChange={(e) => applyZoom(Number(e.target.value))}
-                className="h-1 flex-1 accent-cyan-400"
-              />
-              <span className="w-10 text-right text-xs text-gray-300">
-                {zoom.toFixed(1)}x
-              </span>
-            </div>
-          ) : (
-            <p className="text-center text-xs text-gray-400">
-              Hold the phone 10–15 cm from the QR code
-            </p>
-          )}
-        </div>
+        <p className="px-4 py-3 text-center text-xs text-gray-400">
+          Hold the phone 10–15 cm from the QR code
+        </p>
       </div>
     </div>
   );
