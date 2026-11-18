@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 
-const QR_BOX = 250; // px - smaller box = faster/better decoding of small QR codes
-const ZOOM_LEVEL = 2; // applied only if the device supports zoom
+const QR_BOX = 180; // px - small scan area for tiny lottery QR codes
+const DEFAULT_ZOOM = 2; // starting zoom (only if the phone supports it)
+
+type ZoomCaps = { min: number; max: number; step: number };
 
 export default function Scanner({
   isOpen,
@@ -13,210 +15,238 @@ export default function Scanner({
   setIsOpen: (value: boolean) => void;
   scannSuccess: (value: string) => void;
 }) {
-  const [permissionStatus, setPermissionStatus] = useState("idle");
+  const [status, setStatus] = useState<
+    "idle" | "requesting" | "granted" | "denied" | "error"
+  >("idle");
+  const [attempt, setAttempt] = useState(0);
+  const [zoomCaps, setZoomCaps] = useState<ZoomCaps | null>(null);
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM);
 
-  const scannerRef = useRef<any>(null);
-  const handledRef = useRef(false);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const onSuccessRef = useRef(scannSuccess);
+  const setIsOpenRef = useRef(setIsOpen);
+  onSuccessRef.current = scannSuccess;
+  setIsOpenRef.current = setIsOpen;
 
-  const stopScanner = async () => {
-    try {
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        await scannerRef.current.stop();
-      }
-    } catch (error) {
-      console.error("Scanner Stop Error:", error);
-    } finally {
-      scannerRef.current = null;
-    }
-  };
-
-  const handleClose = async () => {
-    await stopScanner();
+  const handleClose = () => {
     setIsOpen(false);
-    setPermissionStatus("idle");
+    setStatus("idle");
   };
 
-  const startScanner = async () => {
-    handledRef.current = false;
-
-    let element = document.getElementById("qr-reader");
-    if (!element) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      element = document.getElementById("qr-reader");
-      if (!element) return;
-    }
-
-    setPermissionStatus("requesting");
-
+  const applyZoom = async (value: number) => {
+    setZoom(value);
     try {
-      await stopScanner();
-
-      scannerRef.current = new Html5Qrcode("qr-reader", {
-        verbose: false,
-        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
-        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-      });
-
-      await scannerRef.current.start(
-        { facingMode: "environment" },
-        {
-          fps: 15,
-          qrbox: { width: QR_BOX, height: QR_BOX },
-          // request high resolution so small QR codes keep detail
-          videoConstraints: {
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-        } as any,
-        (decodedText: string) => {
-          if (handledRef.current) return;
-          handledRef.current = true;
-
-          const ticketNumber = decodedText.split("-")[3];
-          scannSuccess(ticketNumber);
-          handleClose();
-        },
-        () => {}
-      );
-
-      setPermissionStatus("granted");
-
-      // Improve small-QR scanning: continuous autofocus + zoom (if supported)
-      try {
-        const caps: any = scannerRef.current.getRunningTrackCapabilities();
-        const advanced: any[] = [];
-
-        if (caps?.focusMode?.includes?.("continuous")) {
-          advanced.push({ focusMode: "continuous" });
-        }
-        if (caps?.zoom) {
-          const zoom = Math.min(Math.max(ZOOM_LEVEL, caps.zoom.min), caps.zoom.max);
-          advanced.push({ zoom });
-        }
-        if (advanced.length) {
-          await scannerRef.current.applyVideoConstraints({ advanced });
-        }
-      } catch (e) {
-        console.warn("Could not apply focus/zoom:", e);
-      }
-    } catch (error: any) {
-      console.error("Scanner Error:", error);
-      const errStr = String(error).toLowerCase();
-      if (
-        errStr.includes("notallowederror") ||
-        errStr.includes("permission denied")
-      ) {
-        setPermissionStatus("denied");
-      } else {
-        setPermissionStatus("error");
-      }
+      await scannerRef.current?.applyVideoConstraints({
+        advanced: [{ zoom: value }],
+      } as any);
+    } catch (e) {
+      console.warn("Zoom failed:", e);
     }
   };
 
   useEffect(() => {
-    if (isOpen) {
-      startScanner();
-    } else {
-      stopScanner();
-    }
-    return () => {
-      stopScanner();
+    if (!isOpen) return;
+
+    let cancelled = false;
+    let handled = false;
+
+    const scanner = new Html5Qrcode("qr-reader", {
+      verbose: false,
+      formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+    });
+    scannerRef.current = scanner;
+
+    const safeStop = async () => {
+      try {
+        if (scanner.isScanning) await scanner.stop();
+        scanner.clear();
+      } catch (e) {
+        console.warn("Scanner stop error:", e);
+      }
     };
-  }, [isOpen]);
+
+    const startPromise = (async () => {
+      setStatus("requesting");
+      setZoomCaps(null);
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 15,
+            qrbox: { width: QR_BOX, height: QR_BOX },
+            videoConstraints: {
+              facingMode: "environment",
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+            },
+          } as any,
+          (decodedText: string) => {
+            if (handled || cancelled) return;
+            handled = true;
+
+            const parts = decodedText.split("-");
+            const ticketNumber = parts.length > 3 ? parts[3] : decodedText;
+
+            onSuccessRef.current(ticketNumber);
+            setIsOpenRef.current(false);
+          },
+          () => {}
+        );
+
+        if (cancelled) return;
+        setStatus("granted");
+
+        // continuous autofocus + zoom slider (if the phone supports them)
+        try {
+          const caps: any = scanner.getRunningTrackCapabilities();
+          const advanced: any[] = [];
+
+          if (caps?.focusMode?.includes?.("continuous")) {
+            advanced.push({ focusMode: "continuous" });
+          }
+          if (caps?.zoom) {
+            const min = caps.zoom.min ?? 1;
+            const max = caps.zoom.max ?? 1;
+            const step = caps.zoom.step || 0.1;
+            const start = Math.min(Math.max(DEFAULT_ZOOM, min), max);
+            setZoomCaps({ min, max, step });
+            setZoom(start);
+            advanced.push({ zoom: start });
+          }
+          if (advanced.length) {
+            await scanner.applyVideoConstraints({ advanced } as any);
+          }
+        } catch (e) {
+          console.warn("Could not apply focus/zoom:", e);
+        }
+      } catch (error: any) {
+        if (cancelled) return;
+        console.error("Scanner Error:", error);
+        const errStr = String(error).toLowerCase();
+        setStatus(
+          errStr.includes("notallowederror") ||
+            errStr.includes("permission denied")
+            ? "denied"
+            : "error"
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      startPromise.finally(() => {
+        safeStop();
+        if (scannerRef.current === scanner) scannerRef.current = null;
+      });
+    };
+  }, [isOpen, attempt]);
+
+  if (!isOpen) return null;
 
   return (
-    <div className="">
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black text-white select-none">
-          <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between p-4 bg-gradient-to-b from-black/90 to-transparent">
-            <h2 className="text-lg font-semibold">QR Scanner</h2>
-            <button
-              onClick={handleClose}
-              className="rounded-full bg-white/20 p-2 text-white backdrop-blur-md hover:bg-white/30 z-40"
-            >
-              ✕
-            </button>
-          </div>
-
-          <div className="relative flex-1 flex items-center justify-center w-full h-full">
-            {permissionStatus !== "granted" && (
-              <div className="absolute inset-0 z-20 flex items-center justify-center p-6 bg-black">
-                {permissionStatus === "requesting" && (
-                  <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-lg font-medium">
-                      Requesting Camera Access...
-                    </p>
-                    <p className="text-sm text-gray-400 mt-2">
-                      Please tap 'Allow' when prompted by your browser.
-                    </p>
-                  </div>
-                )}
-
-                {permissionStatus === "denied" && (
-                  <div className="text-center max-w-sm bg-gray-900/90 p-6 rounded-2xl border border-red-500/30">
-                    <span className="text-4xl">🔒</span>
-                    <h3 className="text-xl font-semibold mt-4 text-red-400">
-                      Camera Access Blocked
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-                      We need your camera to scan codes. Please click the lock
-                      icon in your browser's address bar to change permissions
-                      to <strong>Allow</strong>, then try again.
-                    </p>
-                    <button
-                      onClick={startScanner}
-                      className="mt-5 w-full bg-red-600 hover:bg-red-700 text-white rounded-xl py-2 px-4 font-medium transition"
-                    >
-                      Try Accessing Again
-                    </button>
-                  </div>
-                )}
-
-                {permissionStatus === "error" && (
-                  <div className="text-center max-w-sm bg-gray-900/90 p-6 rounded-2xl border border-amber-500/30">
-                    <span className="text-4xl">⚠️</span>
-                    <h3 className="text-xl font-semibold mt-4 text-amber-400">
-                      Camera Setup Failed
-                    </h3>
-                    <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-                      Could not establish a video connection. Make sure no other
-                      apps are using your camera and that you are using a secure
-                      connection (HTTPS).
-                    </p>
-                    <button
-                      onClick={startScanner}
-                      className="mt-5 w-full bg-amber-600 hover:bg-amber-700 text-white rounded-xl py-2 px-4 font-medium transition"
-                    >
-                      Retry Setup
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="absolute inset-0 h-full w-full bg-black overflow-hidden">
-              <div
-                id="qr-reader"
-                className="h-full w-full [&_video]:object-cover [&_video]:h-full [&_video]:w-full [&_#qr-reader__scan_region]:!border-0"
-              />
-
-              {permissionStatus === "granted" && (
-                <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center">
-                  {/* overlay matches the real scan box (QR_BOX = 250px) */}
-                  <div
-                    className="relative rounded-xl border-2 border-white/60"
-                    style={{ width: QR_BOX, height: QR_BOX }}
-                  >
-                    <div className="absolute left-0 right-0 h-[3px] bg-cyan-400 shadow-[0_0_12px_#22d3ee,0_0_4px_#ffffff] animate-[laserMove_2.5s_ease-in-out_infinite]" />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      onClick={handleClose}
+    >
+      <div
+        className="w-full max-w-[320px] overflow-hidden rounded-2xl bg-gray-900 text-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* header */}
+        <div className="flex items-center justify-between px-4 py-3">
+          <h2 className="text-base font-semibold">Scan Ticket QR</h2>
+          <button
+            onClick={handleClose}
+            className="rounded-full bg-white/15 px-2.5 py-1 text-sm hover:bg-white/25"
+          >
+            ✕
+          </button>
         </div>
-      )}
+
+        {/* camera area (small, square) */}
+        <div className="relative mx-auto aspect-square w-full bg-black overflow-hidden">
+          <div
+            id="qr-reader"
+            className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
+          />
+
+          {status === "requesting" && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black text-center">
+              <div className="mb-3 h-10 w-10 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
+              <p className="text-sm">Requesting camera...</p>
+            </div>
+          )}
+
+          {status === "denied" && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black p-4 text-center">
+              <span className="text-3xl">🔒</span>
+              <p className="mt-2 text-sm text-red-400">Camera access blocked</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Allow the camera in your browser settings, then retry.
+              </p>
+              <button
+                onClick={() => setAttempt((n) => n + 1)}
+                className="mt-3 rounded-lg bg-red-600 px-4 py-1.5 text-sm hover:bg-red-700"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {status === "error" && (
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black p-4 text-center">
+              <span className="text-3xl">⚠️</span>
+              <p className="mt-2 text-sm text-amber-400">Camera setup failed</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Close other apps using the camera. HTTPS is required.
+              </p>
+              <button
+                onClick={() => setAttempt((n) => n + 1)}
+                className="mt-3 rounded-lg bg-amber-600 px-4 py-1.5 text-sm hover:bg-amber-700"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {/* laser inside the small scan box */}
+          {status === "granted" && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <div
+                className="relative"
+                style={{ width: QR_BOX, height: QR_BOX }}
+              >
+                <div className="absolute left-0 right-0 h-[2px] bg-cyan-400 shadow-[0_0_10px_#22d3ee] animate-[laserMove_2s_ease-in-out_infinite]" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* zoom slider */}
+        <div className="px-4 py-3">
+          {zoomCaps ? (
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-gray-400">Zoom</span>
+              <input
+                type="range"
+                min={zoomCaps.min}
+                max={zoomCaps.max}
+                step={zoomCaps.step}
+                value={zoom}
+                onChange={(e) => applyZoom(Number(e.target.value))}
+                className="h-1 flex-1 accent-cyan-400"
+              />
+              <span className="w-10 text-right text-xs text-gray-300">
+                {zoom.toFixed(1)}x
+              </span>
+            </div>
+          ) : (
+            <p className="text-center text-xs text-gray-400">
+              Hold the phone 10–15 cm from the QR code
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
