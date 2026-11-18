@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Html5Qrcode } from "html5-qrcode";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+
+const QR_BOX = 250; // px - smaller box = faster/better decoding of small QR codes
+const ZOOM_LEVEL = 2; // applied only if the device supports zoom
 
 export default function Scanner({
   isOpen,
@@ -7,84 +10,13 @@ export default function Scanner({
   scannSuccess,
 }: {
   isOpen: boolean;
-  setIsOpen: (value) => void;
+  setIsOpen: (value: boolean) => void;
   scannSuccess: (value: string) => void;
 }) {
-  // const [isOpen, setIsOpen] = useState(false);
-  const [scanResult, setScanResult] = useState("");
   const [permissionStatus, setPermissionStatus] = useState("idle");
 
-  const scannerRef = useRef(null);
-
-  const handleClose = async () => {
-    await stopScanner();
-    setIsOpen(false);
-    setPermissionStatus("idle");
-  };
-
-  const startScanner = async () => {
-    let element = document.getElementById("qr-reader");
-    if (!element) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      element = document.getElementById("qr-reader");
-      if (!element) return;
-    }
-
-    setPermissionStatus("requesting");
-
-    try {
-      if (!scannerRef.current) {
-        scannerRef.current = new Html5Qrcode("qr-reader");
-      }
-
-      const devices = await Html5Qrcode.getCameras();
-
-      if (!devices || devices.length === 0) {
-        setPermissionStatus("error");
-        return;
-      }
-
-      setPermissionStatus("granted");
-
-      const backCamera = devices.find(
-        (device) =>
-          device.label.toLowerCase().includes("back") ||
-          device.label.toLowerCase().includes("environment") ||
-          device.label.toLowerCase().includes("rear")
-      );
-      const cameraId = backCamera ? backCamera.id : devices[0].id;
-
-      await scannerRef.current.start(
-        cameraId,
-        {
-          fps: 20,
-          qrbox: (width, height) => {
-            const size = Math.min(width, height) * 0.65;
-            return { width: size, height: size };
-          },
-          aspectRatio: 1.0,
-        },
-        (decodedText) => {
-          const ticketNumber = decodedText.split("-")[3];
-          scannSuccess(ticketNumber);
-
-          handleClose();
-        },
-        () => {}
-      );
-    } catch (error) {
-      console.error("Scanner Error:", error);
-      const errStr = error.toString().toLowerCase();
-      if (
-        errStr.includes("notallowederror") ||
-        errStr.includes("permission denied")
-      ) {
-        setPermissionStatus("denied");
-      } else {
-        setPermissionStatus("error");
-      }
-    }
-  };
+  const scannerRef = useRef<any>(null);
+  const handledRef = useRef(false);
 
   const stopScanner = async () => {
     try {
@@ -95,6 +27,90 @@ export default function Scanner({
       console.error("Scanner Stop Error:", error);
     } finally {
       scannerRef.current = null;
+    }
+  };
+
+  const handleClose = async () => {
+    await stopScanner();
+    setIsOpen(false);
+    setPermissionStatus("idle");
+  };
+
+  const startScanner = async () => {
+    handledRef.current = false;
+
+    let element = document.getElementById("qr-reader");
+    if (!element) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      element = document.getElementById("qr-reader");
+      if (!element) return;
+    }
+
+    setPermissionStatus("requesting");
+
+    try {
+      await stopScanner();
+
+      scannerRef.current = new Html5Qrcode("qr-reader", {
+        verbose: false,
+        formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE],
+        experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+      });
+
+      await scannerRef.current.start(
+        { facingMode: "environment" },
+        {
+          fps: 15,
+          qrbox: { width: QR_BOX, height: QR_BOX },
+          // request high resolution so small QR codes keep detail
+          videoConstraints: {
+            facingMode: "environment",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        } as any,
+        (decodedText: string) => {
+          if (handledRef.current) return;
+          handledRef.current = true;
+
+          const ticketNumber = decodedText.split("-")[3];
+          scannSuccess(ticketNumber);
+          handleClose();
+        },
+        () => {}
+      );
+
+      setPermissionStatus("granted");
+
+      // Improve small-QR scanning: continuous autofocus + zoom (if supported)
+      try {
+        const caps: any = scannerRef.current.getRunningTrackCapabilities();
+        const advanced: any[] = [];
+
+        if (caps?.focusMode?.includes?.("continuous")) {
+          advanced.push({ focusMode: "continuous" });
+        }
+        if (caps?.zoom) {
+          const zoom = Math.min(Math.max(ZOOM_LEVEL, caps.zoom.min), caps.zoom.max);
+          advanced.push({ zoom });
+        }
+        if (advanced.length) {
+          await scannerRef.current.applyVideoConstraints({ advanced });
+        }
+      } catch (e) {
+        console.warn("Could not apply focus/zoom:", e);
+      }
+    } catch (error: any) {
+      console.error("Scanner Error:", error);
+      const errStr = String(error).toLowerCase();
+      if (
+        errStr.includes("notallowederror") ||
+        errStr.includes("permission denied")
+      ) {
+        setPermissionStatus("denied");
+      } else {
+        setPermissionStatus("error");
+      }
     }
   };
 
@@ -157,6 +173,7 @@ export default function Scanner({
                     </button>
                   </div>
                 )}
+
                 {permissionStatus === "error" && (
                   <div className="text-center max-w-sm bg-gray-900/90 p-6 rounded-2xl border border-amber-500/30">
                     <span className="text-4xl">⚠️</span>
@@ -187,7 +204,11 @@ export default function Scanner({
 
               {permissionStatus === "granted" && (
                 <div className="absolute inset-0 pointer-events-none z-10 flex items-center justify-center">
-                  <div className="relative w-[65vmin] h-[65vmin] max-w-[400px] max-h-[400px]">
+                  {/* overlay matches the real scan box (QR_BOX = 250px) */}
+                  <div
+                    className="relative rounded-xl border-2 border-white/60"
+                    style={{ width: QR_BOX, height: QR_BOX }}
+                  >
                     <div className="absolute left-0 right-0 h-[3px] bg-cyan-400 shadow-[0_0_12px_#22d3ee,0_0_4px_#ffffff] animate-[laserMove_2.5s_ease-in-out_infinite]" />
                   </div>
                 </div>

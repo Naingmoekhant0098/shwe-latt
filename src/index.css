@@ -143,6 +143,11 @@ textarea,
   }
 }
 
+@keyframes laserMove {
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 3px); }
+}
+
 @media (max-width: 768px) {
   .betting-odds-table .ant-table-thead > tr > th {
     padding: 8px 4px;
