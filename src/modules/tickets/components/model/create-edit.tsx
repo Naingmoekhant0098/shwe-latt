@@ -12,6 +12,35 @@ interface CreateEditModelProps {
   agents?: any[];
 }
 
+// Set to true if you scan many tickets in a row:
+// the modal stays open and only the ticket number is cleared.
+const KEEP_OPEN_AFTER_CREATE = false;
+
+const STORAGE_KEY = "ticket_form_defaults";
+
+const loadDefaults = (): { drawCategory?: string; agent?: string } => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveDefaults = (values: { drawCategory?: string; agent?: string }) => {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        drawCategory: values.drawCategory,
+        agent: values.agent,
+      })
+    );
+  } catch (e) {
+    console.warn("Could not save defaults:", e);
+  }
+};
+
 const CreateEditModel: React.FC<CreateEditModelProps> = ({
   record,
   type: initialType,
@@ -25,25 +54,41 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   const { handleCreate, handleEdit, createLoading, updateLoading } =
     useTicketController();
 
-    
-
   useEffect(() => {
-    if (open) {
-      if (modalType === "edit" && record) {
-        form.setFieldsValue({
-          number: record.number,
-          drawCategory:
-            typeof record.DrawCategory === "object"
-              ? record.DrawCategory?._id
-              : record.DrawCategory,
-          agent:
-            typeof record.Agent === "object" ? record.Agent?._id : record.Agent,
-          status: record.status || "pending",
-        });
-      } else {
-        form.resetFields();
-      }
+    if (!open) return;
+
+    if (modalType === "edit" && record) {
+      form.setFieldsValue({
+        number: record.number,
+        drawCategory:
+          typeof record.DrawCategory === "object"
+            ? record.DrawCategory?._id
+            : record.DrawCategory,
+        agent:
+          typeof record.Agent === "object" ? record.Agent?._id : record.Agent,
+        status: record.status || "pending",
+      });
+    } else {
+      form.resetFields();
+
+      const saved = loadDefaults();
+      const catExists = categories.some(
+        (c) => (c.id || c._id) === saved.drawCategory
+      );
+      const agentExists = agents.some(
+        (a) => (a.id || a._id) === saved.agent
+      );
+
+      form.setFieldsValue({
+        status: "pending",
+        // only prefill if the saved ID still exists in the current lists
+        drawCategory: catExists ? saved.drawCategory : undefined,
+        agent: agentExists ? saved.agent : undefined,
+      });
     }
+    // categories/agents are intentionally not in deps: their default `= []`
+    // creates a new array every render and would reset the form repeatedly
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, record, modalType, form]);
 
   const showModal = (mode: "create" | "edit") => {
@@ -54,7 +99,6 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   const handleOk = async () => {
     try {
       const values = await form.validateFields();
-      console.log("Form Values:", values);
 
       const response =
         modalType === "create"
@@ -63,6 +107,16 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
 
       if (response.success) {
         message.success(response.message);
+
+        if (modalType === "create") {
+          saveDefaults(values); // saves draw + agent, NOT the number
+
+          if (KEEP_OPEN_AFTER_CREATE) {
+            form.setFieldsValue({ number: undefined }); // keep draw + agent
+            return;
+          }
+        }
+
         setOpen(false);
         form.resetFields();
       } else {
@@ -72,10 +126,12 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
       console.log("Validation Failed:", error);
     }
   };
+
   const startScanner = () => {
     setIsOpenScan(true);
   };
-  const scannSuccess = (result) => {
+
+  const scannSuccess = (result: string) => {
     form.setFieldsValue({ number: result });
     setIsOpenScan(false);
   };
@@ -91,7 +147,6 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
             className="bg-red-100 mt-[2px]! hover:bg-red-200 text-green-600! flex items-center"
           >
             <EditOutlined style={{ fontSize: "14px" }} />
-            
           </Button>
         ) : (
           <Button
@@ -212,6 +267,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
                 ))}
               </Select>
             </Form.Item>
+
             <Form.Item name="status" label="အခြေအနေ" initialValue="pending">
               <Select disabled={modalType === "create"}>
                 <Select.Option value="pending">
