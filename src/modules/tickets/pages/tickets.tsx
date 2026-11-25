@@ -1,15 +1,15 @@
-import DataTable from "../components/table";
-
-import Breadcrumb from "../components/breadcrumb";
+import { useEffect, useState } from "react";
 import { Button, Space } from "antd";
-import { useTicketController } from "../hooks/useTicketController";
+import { Ticket } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import DataTable from "../components/table";
+import Breadcrumb from "../components/breadcrumb";
 import CreateEditModel from "../components/model/create-edit";
+import { useTicketController } from "../hooks/useTicketController";
+import { useBarcodeScanner } from "../../../hooks/useBarcodeScanner";
 
 import { useDrawCategoryController } from "../../category/hooks/useCustomerController";
-import { useCustomerController } from "../../agent/hooks/useCustomerController";
-import { useEffect } from "react";
-import { MoveHorizontal, Ticket } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useGetUsers } from "../../agent/hooks/useQuaries";
 
 function Tickets() {
@@ -26,14 +26,32 @@ function Tickets() {
   } = useTicketController();
 
   const { drawCategories: draws } = useDrawCategoryController();
-  // const { agents: customers } = useCustomerController();
+  const { data: agents } = useGetUsers({});
+  const navigate = useNavigate();
 
+  // ---- Barcode scanner -> open modal + fill number ----
+  const [modalOpen, setModalOpen] = useState(false);
+  const [scan, setScan] = useState({ code: "", id: 0 });
 
-  const {data : agents} = useGetUsers({});
-  const latestDraw = draws?.drawCategories?.reduce((latest, current) => {
-    if (!latest) return current;
-    return new Date(current.date) > new Date(latest.date) ? current : latest;
-  }, null);
+  useBarcodeScanner(
+    (code) => {
+      setScan({ code, id: Date.now() }); // new id every scan, even the same number
+      setModalOpen(true);
+    },
+    {
+      minLength: 3, // set to your real barcode length
+      ignoreInputs: !modalOpen, // allow scans while the modal's inputs are focused
+    }
+  );
+
+  // ---- Select latest draw by default ----
+  const latestDraw = draws?.drawCategories?.reduce(
+    (latest: any, current: any) => {
+      if (!latest) return current;
+      return new Date(current.date) > new Date(latest.date) ? current : latest;
+    },
+    null
+  );
 
   const latestDrawId = latestDraw ? latestDraw.id || latestDraw._id : undefined;
 
@@ -42,31 +60,43 @@ function Tickets() {
       setSelectedCategory(latestDrawId);
     }
   }, [latestDrawId, selectedCategory, setSelectedCategory]);
-   
-  const navigate = useNavigate();
 
   return (
     <Space direction="vertical" size={12} style={{ display: "flex" }}>
       <Breadcrumb />
-      <div className=" flex md:items-center justify-between">
+      <div className="flex md:items-center justify-between">
         <div>
           <div className="font-semibold text-lg md:text-xl">ထီမဲနံပါတ်များ</div>
           <p className="text-sm text-gray-400 mt-1!">
             ရက်စွဲအလိုက် ထီမဲရလဒ်များကို ကြည့်ရှုနိုင်ပါသည်
           </p>
         </div>
-        <div className=" flex items-center gap-3">
-          <Button color="gold" variant="outlined" onClick={()=>navigate('/move-tickets')} icon={<Ticket size={14} />}>
-            <span className="">ထီရွှေ့ရန်</span>
+        <div className="flex items-center gap-3">
+          <Button
+            color="gold"
+            variant="outlined"
+            onClick={() => navigate("/move-tickets")}
+            icon={<Ticket size={14} />}
+          >
+            <span>ထီရွှေ့ရန်</span>
           </Button>
+
           <CreateEditModel
             categories={draws?.drawCategories}
             agents={agents?.agents}
             type="create"
+            open={modalOpen}
+            onOpenChange={(v: boolean) => {
+              setModalOpen(v);
+              if (!v) setScan({ code: "", id: 0 });
+            }}
+            initialNumber={scan.code}
+            scanId={scan.id}
           />
         </div>
       </div>
-      <div className="flex gap-2 overflow-x-auto  scrollbar-hide mt-0 md:mt-4">
+
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide mt-0 md:mt-4">
         {draws?.drawCategories?.map((cat: any) => {
           const value = String(cat.id || cat._id);
           const active = selectedCategory === value;

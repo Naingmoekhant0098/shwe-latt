@@ -10,12 +10,13 @@ interface CreateEditModelProps {
   type: "create" | "edit";
   categories?: any[];
   agents?: any[];
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  initialNumber?: string;
+  scanId?: number; // changes on every scan
 }
 
-// Set to true if you scan many tickets in a row:
-// the modal stays open and only the ticket number is cleared.
 const KEEP_OPEN_AFTER_CREATE = false;
-
 const STORAGE_KEY = "ticket_form_defaults";
 
 const loadDefaults = (): { drawCategory?: string; agent?: string } => {
@@ -46,14 +47,26 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
   type: initialType,
   categories = [],
   agents = [],
+  open: controlledOpen,
+  onOpenChange,
+  initialNumber,
+  scanId,
 }) => {
   const [form] = Form.useForm();
-  const [open, setOpen] = useState(false);
+
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = controlledOpen ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    setInnerOpen(v);
+    onOpenChange?.(v);
+  };
+
   const [modalType, setModalType] = useState<"create" | "edit">(initialType);
   const [isOpenScan, setIsOpenScan] = useState(false);
   const { handleCreate, handleEdit, createLoading, updateLoading } =
     useTicketController();
 
+  // Runs when the modal opens: reset + prefill
   useEffect(() => {
     if (!open) return;
 
@@ -75,21 +88,27 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
       const catExists = categories.some(
         (c) => (c.id || c._id) === saved.drawCategory
       );
-      const agentExists = agents.some(
-        (a) => (a.id || a._id) === saved.agent
-      );
+      const agentExists = agents.some((a) => (a.id || a._id) === saved.agent);
 
       form.setFieldsValue({
         status: "pending",
-        // only prefill if the saved ID still exists in the current lists
         drawCategory: catExists ? saved.drawCategory : undefined,
         agent: agentExists ? saved.agent : undefined,
+        number: initialNumber || undefined,
       });
     }
-    // categories/agents are intentionally not in deps: their default `= []`
-    // creates a new array every render and would reset the form repeatedly
+    // initialNumber is intentionally not a dependency: a new scan must not
+    // reset the draw/agent the user already picked
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, record, modalType, form]);
+
+  // Runs on every new scan while the modal is already open
+  useEffect(() => {
+    if (open && modalType === "create" && scanId && initialNumber) {
+      form.setFieldsValue({ number: initialNumber });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanId]);
 
   const showModal = (mode: "create" | "edit") => {
     setModalType(mode);
@@ -109,10 +128,10 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
         message.success(response.message);
 
         if (modalType === "create") {
-          saveDefaults(values); // saves draw + agent, NOT the number
+          saveDefaults(values);
 
           if (KEEP_OPEN_AFTER_CREATE) {
-            form.setFieldsValue({ number: undefined }); // keep draw + agent
+            form.setFieldsValue({ number: undefined });
             return;
           }
         }
@@ -127,9 +146,7 @@ const CreateEditModel: React.FC<CreateEditModelProps> = ({
     }
   };
 
-  const startScanner = () => {
-    setIsOpenScan(true);
-  };
+  const startScanner = () => setIsOpenScan(true);
 
   const scannSuccess = (result: string) => {
     form.setFieldsValue({ number: result });
